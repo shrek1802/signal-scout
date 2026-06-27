@@ -13,7 +13,7 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Unzip project
-        run: unzip signal_scout_android_v0_1_full_project.zip -d appsrc
+        run: unzip signal_scout_android_v0_1_1_full_project.zip -d appsrc
 
       - uses: actions/setup-java@v4
         with:
