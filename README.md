@@ -1,3 +1,11 @@
+🚧 EARLY DEVELOPMENT 🚧
+
+Signal Scout is currently in active development.
+
+Features and user interface may change significantly between releases.
+
+Thank you for testing and providing feedback.
+
 # 📡 Signal Scout
 
 Signal Scout is an Android application designed to help installers and home users achieve the best possible 4G/5G signal from Huawei LTE/5G routers.
