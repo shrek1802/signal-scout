@@ -1,0 +1,37 @@
+name: Apply upload.zip Update
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check upload.zip exists
+        run: |
+          test -f upload.zip || (echo "upload.zip not found in repo root" && exit 1)
+
+      - name: Extract update
+        run: |
+          mkdir update_files
+          unzip upload.zip -d update_files
+
+      - name: Apply files
+        run: |
+          rsync -av update_files/ ./
+          rm -rf update_files
+          rm upload.zip
+
+      - name: Commit update
+        run: |
+          git config user.name "Signal Scout Bot"
+          git config user.email "actions@github.com"
+          git add .
+          git commit -m "Apply upload.zip update" || echo "No changes"
+          git push
