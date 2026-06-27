@@ -11,31 +11,28 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repo
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
       - name: Pick latest project ZIP
         run: |
           ZIP=$(ls -1 signal_scout_android_v*_full_project.zip | sort -V | tail -n 1)
           echo "ZIP=$ZIP" >> $GITHUB_ENV
 
-          VERSION=$(echo "$ZIP" | sed -E 's/^signal_scout_android_v([0-9]+)_([0-9]+)_([0-9]+)_full_project\.zip$/\1.\2.\3/')
+          VERSION=$(basename "$ZIP" | sed 's/signal_scout_android_v//' | sed 's/_full_project.zip//' | tr '_' '.')
           echo "VERSION=$VERSION" >> $GITHUB_ENV
 
-          echo "Using ZIP: $ZIP"
-          echo "Detected version: $VERSION"
+          echo "Using ZIP=$ZIP"
+          echo "Detected VERSION=$VERSION"
 
       - name: Unzip project
         run: unzip "$ZIP" -d appsrc
 
-      - name: Set up Java
-        uses: actions/setup-java@v4
+      - uses: actions/setup-java@v4
         with:
           distribution: temurin
           java-version: 17
 
-      - name: Set up Gradle
-        uses: gradle/actions/setup-gradle@v4
+      - uses: gradle/actions/setup-gradle@v4
 
       - name: Build APK
         run: |
