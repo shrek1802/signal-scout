@@ -1,34 +1,38 @@
-name: Build APK from ZIP
+name: Build APK Release
 
 on:
   workflow_dispatch:
 
+permissions:
+  contents: write
+
 jobs:
   build:
     runs-on: ubuntu-latest
-
     steps:
       - uses: actions/checkout@v4
 
       - name: Unzip project
         run: unzip signal_scout_android_v0_1_full_project.zip -d appsrc
 
-      - name: Set up Java
-        uses: actions/setup-java@v4
+      - uses: actions/setup-java@v4
         with:
           distribution: temurin
           java-version: 17
 
-      - name: Set up Gradle
-        uses: gradle/actions/setup-gradle@v4
+      - uses: gradle/actions/setup-gradle@v4
 
       - name: Build APK
         run: |
           cd appsrc
           gradle assembleDebug
 
-      - name: Upload APK
-        uses: actions/upload-artifact@v4
+      - name: Rename APK
+        run: cp appsrc/app/build/outputs/apk/debug/app-debug.apk SignalScout-v0.1.apk
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v2
         with:
-          name: Signal-Scout-v0.1-debug-apk
-          path: appsrc/app/build/outputs/apk/debug/app-debug.apk
+          tag_name: v0.1
+          name: Signal Scout v0.1
+          files: SignalScout-v0.1.apk
