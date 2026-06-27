@@ -1,0 +1,65 @@
+name: Release Manager
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "New version, example 0.2.0"
+        required: true
+        type: string
+      channel:
+        description: "Release channel"
+        required: true
+        default: "beta"
+        type: choice
+        options:
+          - beta
+          - stable
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - uses: gradle/actions/setup-gradle@v4
+
+      - name: Update version
+        run: |
+          VERSION="${{ github.event.inputs.version }}"
+          CODE=$(date +%s)
+
+          sed -i -E "s/versionCode [0-9]+/versionCode $CODE/" app/build.gradle
+          sed -i -E "s/versionName \"[^\"]+\"/versionName \"$VERSION\"/" app/build.gradle
+
+      - name: Commit version bump
+        run: |
+          git config user.name "github-actions"
+          git config user.email "github-actions@github.com"
+          git add app/build.gradle
+          git commit -m "Release v${{ github.event.inputs.version }}" || echo "No changes"
+          git push
+
+      - name: Build APK
+        run: gradle assembleDebug
+
+      - name: Rename APK
+        run: cp app/build/outputs/apk/debug/app-debug.apk "SignalScout-v${{ github.event.inputs.version }}-${{ github.event.inputs.channel }}.apk"
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: v${{ github.event.inputs.version }}-${{ github.event.inputs.channel }}
+          name: Signal Scout v${{ github.event.inputs.version }} ${{ github.event.inputs.channel }}
+          files: SignalScout-v${{ github.event.inputs.version }}-${{ github.event.inputs.channel }}.apk
+          generate_release_notes: true
+          prerelease: ${{ github.event.inputs.channel == 'beta' }}
