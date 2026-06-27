@@ -11,25 +11,31 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout repo
+        uses: actions/checkout@v4
 
       - name: Pick latest project ZIP
         run: |
-          ZIP=$(ls -1 signal_scout_android_*_full_project.zip | sort -V | tail -n 1)
+          ZIP=$(ls -1 signal_scout_android_v*_full_project.zip | sort -V | tail -n 1)
           echo "ZIP=$ZIP" >> $GITHUB_ENV
-          VERSION=$(echo "$ZIP" | sed -E 's/signal_scout_android_v([0-9_]+)_full_project.zip/\1/' | tr '_' '.')
+
+          VERSION=$(echo "$ZIP" | sed -E 's/^signal_scout_android_v([0-9]+)_([0-9]+)_([0-9]+)_full_project\.zip$/\1.\2.\3/')
           echo "VERSION=$VERSION" >> $GITHUB_ENV
-          echo "Using $ZIP version $VERSION"
+
+          echo "Using ZIP: $ZIP"
+          echo "Detected version: $VERSION"
 
       - name: Unzip project
         run: unzip "$ZIP" -d appsrc
 
-      - uses: actions/setup-java@v4
+      - name: Set up Java
+        uses: actions/setup-java@v4
         with:
           distribution: temurin
           java-version: 17
 
-      - uses: gradle/actions/setup-gradle@v4
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v4
 
       - name: Build APK
         run: |
@@ -45,3 +51,4 @@ jobs:
           tag_name: v${{ env.VERSION }}
           name: Signal Scout v${{ env.VERSION }}
           files: SignalScout-v${{ env.VERSION }}.apk
+          overwrite_files: true
