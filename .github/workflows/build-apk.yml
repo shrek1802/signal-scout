@@ -1,4 +1,4 @@
-name: Build APK Release
+name: Build Latest APK Release
 
 on:
   workflow_dispatch:
@@ -9,11 +9,20 @@ permissions:
 jobs:
   build:
     runs-on: ubuntu-latest
+
     steps:
       - uses: actions/checkout@v4
 
+      - name: Pick latest project ZIP
+        run: |
+          ZIP=$(ls -1 signal_scout_android_*_full_project.zip | sort -V | tail -n 1)
+          echo "ZIP=$ZIP" >> $GITHUB_ENV
+          VERSION=$(echo "$ZIP" | sed -E 's/signal_scout_android_v([0-9_]+)_full_project.zip/\1/' | tr '_' '.')
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
+          echo "Using $ZIP version $VERSION"
+
       - name: Unzip project
-        run: unzip signal_scout_android_v0_1_1_full_project.zip -d appsrc
+        run: unzip "$ZIP" -d appsrc
 
       - uses: actions/setup-java@v4
         with:
@@ -28,11 +37,11 @@ jobs:
           gradle assembleDebug
 
       - name: Rename APK
-        run: cp appsrc/app/build/outputs/apk/debug/app-debug.apk SignalScout-v0.1.apk
+        run: cp appsrc/app/build/outputs/apk/debug/app-debug.apk "SignalScout-v${VERSION}.apk"
 
       - name: Create Release
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: v0.1
-          name: Signal Scout v0.1
-          files: SignalScout-v0.1.apk
+          tag_name: v${{ env.VERSION }}
+          name: Signal Scout v${{ env.VERSION }}
+          files: SignalScout-v${{ env.VERSION }}.apk
