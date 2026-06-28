@@ -1,22 +1,19 @@
-Signal Scout v1.0.1 full UI update
+Signal Scout v1.1.0 premium UI rebuild
 
-This is a real app UI update, not just a top header image.
-
-How to use:
+Use:
 1. Rename this ZIP to upload.zip
-2. Upload upload.zip to your GitHub repo root
-3. Run Actions > Apply upload.zip Update
-4. Run Actions > Release Manager
-5. Version: 1.0.1
+2. Upload to repo root
+3. Run Apply upload.zip Update
+4. Run Release Manager
+5. Version: 1.1.0
 6. Channel: beta
 
-Changes:
-- Proper Home screen based on Scout mockup
-- Dashboard/Live page with quality score and signal cards
-- Scan Bands page styled like the mockup
-- Tower Direction page styled like the mockup
-- Reports page styled like the mockup
-- More/About page with Scout quality guide
-- Bottom navigation tabs
-- Scout app icon
-- Version 1.0.1
+This version uses a WebView-based premium UI so the app can look much closer to the generated mockups:
+- Full Scout mockup home page
+- Dashboard mockup with live router controls
+- Scan Bands mockup
+- Tower Direction mockup
+- Reports mockup
+- More/About screen
+- Bottom navigation
+- Working Java bridge for router login and signal read

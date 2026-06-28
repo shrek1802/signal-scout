@@ -2,14 +2,11 @@ package uk.prolocks.signalscout;
 
 import android.app.Activity;
 import android.os.*;
-import android.content.*;
-import android.graphics.*;
-import android.graphics.drawable.*;
+import android.webkit.*;
+import android.annotation.SuppressLint;
 import android.media.*;
-import android.text.InputType;
+import android.content.*;
 import android.util.Base64;
-import android.view.*;
-import android.widget.*;
 import java.io.*;
 import java.net.*;
 import java.security.*;
@@ -19,25 +16,16 @@ import java.util.regex.*;
 import javax.net.ssl.*;
 
 public class MainActivity extends Activity {
-    final int BG = Color.rgb(3, 15, 27);
-    final int CARD = Color.rgb(8, 28, 48);
-    final int CARD2 = Color.rgb(10, 38, 64);
-    final int BLUE = Color.rgb(0, 180, 255);
-    final int GREEN = Color.rgb(95, 255, 95);
-    final int AMBER = Color.rgb(255, 190, 70);
-    final int RED = Color.rgb(255, 82, 82);
-
-    LinearLayout root, tabs;
-    TextView status, sinrBig, qualityBig, rsrpTxt, rsrqTxt, rssiTxt, bandTxt, bestTxt, cellTxt, rawTxt;
-    EditText routerUrl, adminPass;
+    WebView web;
     Handler handler = new Handler(Looper.getMainLooper());
     boolean running = false;
-    double bestSinr = -999;
     ToneGenerator tone;
     Vibrator vibrator;
+    String routerBase = "https://hirouter.net";
+    String routerPass = "";
     String sessionCookie = "";
     String requestToken = "";
-    int screen = 0;
+    double bestSinr = -999;
 
     Runnable poller = new Runnable() {
         public void run() {
@@ -47,370 +35,126 @@ public class MainActivity extends Activity {
         }
     };
 
+    @SuppressLint({"SetJavaScriptEnabled", "AddJavascriptInterface"})
     public void onCreate(Bundle b) {
         super.onCreate(b);
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         trustAllHttps();
+
         tone = new ToneGenerator(AudioManager.STREAM_MUSIC, 80);
         vibrator = (Vibrator)getSystemService(Context.VIBRATOR_SERVICE);
 
-        LinearLayout shell = new LinearLayout(this);
-        shell.setOrientation(LinearLayout.VERTICAL);
-        shell.setBackgroundColor(BG);
-
-        ScrollView scroll = new ScrollView(this);
-        root = new LinearLayout(this);
-        root.setOrientation(LinearLayout.VERTICAL);
-        root.setPadding(dp(12), dp(10), dp(12), dp(10));
-        scroll.addView(root);
-        shell.addView(scroll, new LinearLayout.LayoutParams(-1, 0, 1));
-
-        tabs = new LinearLayout(this);
-        tabs.setOrientation(LinearLayout.HORIZONTAL);
-        tabs.setPadding(dp(4), dp(4), dp(4), dp(4));
-        tabs.setBackgroundColor(Color.rgb(2, 11, 22));
-        shell.addView(tabs, new LinearLayout.LayoutParams(-1, -2));
-
-        setContentView(shell);
-        drawTabs();
-        showHome();
+        web = new WebView(this);
+        WebSettings s = web.getSettings();
+        s.setJavaScriptEnabled(true);
+        s.setDomStorageEnabled(true);
+        s.setAllowFileAccess(true);
+        s.setAllowContentAccess(true);
+        web.addJavascriptInterface(new Bridge(), "SignalScout");
+        setContentView(web);
+        web.loadDataWithBaseURL("file:///android_res/drawable/", html(), "text/html", "UTF-8", null);
     }
 
-    int dp(int v) {
-        return (int)(v * getResources().getDisplayMetrics().density + 0.5f);
+    public class Bridge {
+        @JavascriptInterface public void setRouter(String url, String pass) {
+            routerBase = url == null || url.trim().length() == 0 ? "https://hirouter.net" : url.trim();
+            if (routerBase.endsWith("/")) routerBase = routerBase.substring(0, routerBase.length() - 1);
+            routerPass = pass == null ? "" : pass;
+        }
+        @JavascriptInterface public void login() { MainActivity.this.login(); }
+        @JavascriptInterface public void startLive() {
+            running = true;
+            bestSinr = -999;
+            js("setStatus('Running live signal finder...');");
+            handler.removeCallbacks(poller);
+            handler.post(poller);
+        }
+        @JavascriptInterface public void stopLive() {
+            running = false;
+            handler.removeCallbacks(poller);
+            js("setStatus('Stopped');");
+        }
+        @JavascriptInterface public void testRead() { readSignal(); }
     }
 
-    void drawTabs() {
-        tabs.removeAllViews();
-        tab("Home", 0);
-        tab("Live", 1);
-        tab("Scan", 2);
-        tab("Tower", 3);
-        tab("Reports", 4);
-        tab("More", 5);
+    void js(String code) {
+        runOnUiThread(() -> web.evaluateJavascript(code, null));
     }
 
-    void tab(String label, int target) {
-        TextView t = text(label, 11, screen == target ? BLUE : Color.rgb(165, 180, 195), true);
-        t.setGravity(Gravity.CENTER);
-        t.setPadding(0, dp(7), 0, dp(7));
-        if (screen == target) t.setBackground(round(Color.rgb(5, 38, 65), dp(14), BLUE));
-        t.setOnClickListener(v -> {
-            screen = target;
-            drawTabs();
-            if (target == 0) showHome();
-            if (target == 1) showLive();
-            if (target == 2) showScan();
-            if (target == 3) showTower();
-            if (target == 4) showReports();
-            if (target == 5) showMore();
-        });
-        tabs.addView(t, new LinearLayout.LayoutParams(0, -2, 1));
-    }
-
-    void clear() { root.removeAllViews(); }
-
-    void showHome() {
-        clear();
-        image("art_home", 620);
-        pillTitle("Signal Scout", "Professional LTE & 5G Installation Assistant");
-        root.addView(primary("Tap to Begin", v -> { screen = 1; drawTabs(); showLive(); }));
-
-        root.addView(card("What are you trying to achieve today?",
-                "🛰️ New Antenna Installation\n📶 Improve Existing Installation\n🚀 Find the Fastest Connection\n🔍 Diagnose Poor Signal\n⚙️ Advanced / Professional Mode"));
-
-        root.addView(primary("Guided Installation", v -> showGuide()));
-        root.addView(primary("Live Signal Finder", v -> { screen = 1; drawTabs(); showLive(); }));
-        root.addView(primary("Band Scanner", v -> { screen = 2; drawTabs(); showScan(); }));
-    }
-
-    void showGuide() {
-        clear();
-        image("art_scout", 280);
-        pillTitle("Guided Installation", "Scout will walk you through the job.");
-        root.addView(card("Step 1 - Connect", "Connect to the router and confirm live signal readings."));
-        root.addView(card("Step 2 - Aim", "Rotate the antenna slowly. Stop when the beeps are fastest and the quality score is highest."));
-        root.addView(card("Step 3 - Scan Bands", "Scan all available LTE bands and combinations to find the best pair."));
-        root.addView(card("Step 4 - Report", "Save the final signal quality, bands and tower information."));
-        root.addView(primary("Start Live Signal Finder", v -> { screen = 1; drawTabs(); showLive(); }));
-    }
-
-    void showLive() {
-        clear();
-        image("art_dashboard", 300);
-        pillTitle("Dashboard", "Live router signal and antenna alignment.");
-
-        routerUrl = edit("https://hirouter.net", "Router URL", false);
-        adminPass = edit("", "Router admin password", true);
-        root.addView(routerUrl);
-        root.addView(adminPass);
-        root.addView(primary("Login to Router", v -> login()));
-
-        LinearLayout row = new LinearLayout(this);
-        row.setOrientation(LinearLayout.HORIZONTAL);
-        row.addView(action("Start", v -> startLive()), new LinearLayout.LayoutParams(0, -2, 1));
-        row.addView(action("Stop", v -> stopLive()), new LinearLayout.LayoutParams(0, -2, 1));
-        row.addView(action("Reset", v -> { bestSinr = -999; if (bestTxt != null) bestTxt.setText("Best --"); }), new LinearLayout.LayoutParams(0, -2, 1));
-        root.addView(row);
-
-        root.addView(primary("Test Read Once / Show Raw Reply", v -> readSignal()));
-
-        status = text("Not logged in", 14, Color.LTGRAY, false);
-        status.setGravity(Gravity.CENTER);
-        root.addView(status);
-
-        qualityBig = text("Quality -- / 100", 30, GREEN, true);
-        qualityBig.setGravity(Gravity.CENTER);
-        root.addView(cardView(qualityBig));
-
-        sinrBig = text("-- dB", 74, RED, true);
-        sinrBig.setGravity(Gravity.CENTER);
-        root.addView(cardView(sinrBig));
-
-        bestTxt = text("Best --", 20, Color.WHITE, true);
-        bestTxt.setGravity(Gravity.CENTER);
-        root.addView(bestTxt);
-
-        LinearLayout grid1 = new LinearLayout(this);
-        grid1.setOrientation(LinearLayout.HORIZONTAL);
-        rsrpTxt = metric("RSRP", "--");
-        sinrPlaceholder();
-        rsrqTxt = metric("RSRQ", "--");
-        grid1.addView(rsrpTxt, new LinearLayout.LayoutParams(0, -2, 1));
-        grid1.addView(rsrqTxt, new LinearLayout.LayoutParams(0, -2, 1));
-        root.addView(grid1);
-
-        LinearLayout grid2 = new LinearLayout(this);
-        grid2.setOrientation(LinearLayout.HORIZONTAL);
-        rssiTxt = metric("RSSI", "--");
-        bandTxt = metric("Band", "--");
-        grid2.addView(rssiTxt, new LinearLayout.LayoutParams(0, -2, 1));
-        grid2.addView(bandTxt, new LinearLayout.LayoutParams(0, -2, 1));
-        root.addView(grid2);
-
-        cellTxt = card("Connected Cell", "PCI: --\nEARFCN: --\nCell ID: --\neNodeB: --");
-        root.addView(cellTxt);
-
-        rawTxt = text("Raw reply will show here.", 10, Color.GRAY, false);
-        rawTxt.setPadding(0, dp(8), 0, dp(20));
-        root.addView(rawTxt);
-    }
-
-    void sinrPlaceholder() {}
-
-    void showScan() {
-        clear();
-        image("art_scan", 430);
-        pillTitle("Scan Bands", "Scanning available bands and combinations.");
-        root.addView(card("Band Scanner", "Scanning all available LTE bands for the best signal and combination.\n\nThis may take a few minutes."));
-        root.addView(progressCard("Progress", "75%", "B1   2100 MHz     -95 dBm\nB3   1800 MHz     -78 dBm  ✓\nB7   2600 MHz     -98 dBm\nB20  800 MHz      -82 dBm  ✓\nB28  700 MHz      -101 dBm"));
-        root.addView(primary("Start Smart Scan (Coming Soon)", v -> Toast.makeText(this, "Band scanner will be added after login works", Toast.LENGTH_LONG).show()));
-    }
-
-    void showTower() {
-        clear();
-        image("art_tower", 450);
-        pillTitle("Tower Direction", "Use compass/camera guidance to aim the antenna.");
-        TextView arrow = text("↑\n23°\nNE", 54, GREEN, true);
-        arrow.setGravity(Gravity.CENTER);
-        root.addView(cardView(arrow));
-        root.addView(card("Best Signal This Direction", "-72 dBm\n\nTower Camera and AR marker coming soon."));
-    }
-
-    void showReports() {
-        clear();
-        image("art_reports", 450);
-        pillTitle("Reports", "Installer report tools.");
-        root.addView(card("Site Survey", "12 Jun 2026 - 10:30\nNG12 3NH\nExcellent"));
-        root.addView(primary("View Report", v -> Toast.makeText(this, "Reports coming soon", Toast.LENGTH_SHORT).show()));
-        root.addView(primary("Export PDF", v -> Toast.makeText(this, "PDF export coming soon", Toast.LENGTH_SHORT).show()));
-        root.addView(primary("Share", v -> Toast.makeText(this, "Share coming soon", Toast.LENGTH_SHORT).show()));
-    }
-
-    void showMore() {
-        clear();
-        image("art_scout", 300);
-        pillTitle("Scout", "Your friendly signal expert.");
-        root.addView(card("Signal Quality", "Excellent 90-100\nGood 70-89\nNeeds Improvement 40-69\nPoor 20-39\nNo Signal 0-19"));
-        root.addView(card("Version", "Signal Scout v1.0.1 beta\nProfessional UI preview\nHuawei B535 testing build"));
-        root.addView(card("Rollback", "Older APKs stay available in GitHub Releases."));
-    }
-
-    TextView progressCard(String head, String pct, String body) {
-        return card(head, pct + "\n\n" + body);
-    }
-
-    void image(String name, int height) {
-        ImageView img = new ImageView(this);
-        img.setImageResource(getResources().getIdentifier(name, "drawable", getPackageName()));
-        img.setScaleType(ImageView.ScaleType.CENTER_CROP);
-        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(-1, dp(height));
-        lp.setMargins(0, 0, 0, dp(10));
-        root.addView(img, lp);
-    }
-
-    void pillTitle(String h, String sub) {
-        TextView a = text(h, 30, Color.WHITE, true);
-        a.setGravity(Gravity.CENTER);
-        root.addView(a);
-        TextView b = text(sub, 15, BLUE, false);
-        b.setGravity(Gravity.CENTER);
-        b.setPadding(0, 0, 0, dp(10));
-        root.addView(b);
-    }
-
-    TextView metric(String label, String value) {
-        TextView v = text(label + "\n" + value, 22, Color.WHITE, true);
-        v.setGravity(Gravity.CENTER);
-        v.setPadding(dp(8), dp(18), dp(8), dp(18));
-        v.setBackground(round(CARD, dp(18), Color.rgb(18, 58, 92)));
-        return v;
-    }
-
-    TextView card(String h, String b) {
-        TextView v = text(h + "\n" + b, 16, Color.WHITE, false);
-        v.setPadding(dp(18), dp(16), dp(18), dp(16));
-        v.setBackground(round(CARD, dp(18), Color.rgb(18, 58, 92)));
-        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(-1, -2);
-        lp.setMargins(0, dp(6), 0, dp(6));
-        v.setLayoutParams(lp);
-        return v;
-    }
-
-    View cardView(View inside) {
-        LinearLayout box = new LinearLayout(this);
-        box.setPadding(dp(12), dp(12), dp(12), dp(12));
-        box.setBackground(round(CARD2, dp(22), Color.rgb(18, 80, 120)));
-        box.addView(inside, new LinearLayout.LayoutParams(-1, -2));
-        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(-1, -2);
-        lp.setMargins(0, dp(6), 0, dp(6));
-        box.setLayoutParams(lp);
-        return box;
-    }
-
-    Button primary(String text, View.OnClickListener l) {
-        Button b = new Button(this);
-        b.setText(text);
-        b.setTextColor(Color.WHITE);
-        b.setTextSize(15);
-        b.setBackgroundColor(Color.rgb(0, 110, 190));
-        b.setOnClickListener(l);
-        return b;
-    }
-
-    Button action(String text, View.OnClickListener l) {
-        Button b = new Button(this);
-        b.setText(text);
-        b.setTextColor(Color.WHITE);
-        b.setBackgroundColor(Color.rgb(45, 70, 95));
-        b.setOnClickListener(l);
-        return b;
-    }
-
-    EditText edit(String text, String hint, boolean password) {
-        EditText e = new EditText(this);
-        e.setText(text);
-        e.setHint(hint);
-        e.setTextColor(Color.WHITE);
-        e.setHintTextColor(Color.GRAY);
-        e.setSingleLine(true);
-        e.setBackgroundColor(Color.rgb(6, 24, 42));
-        if (password) e.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
-        return e;
-    }
-
-    TextView text(String s, int size, int color, boolean bold) {
-        TextView v = new TextView(this);
-        v.setText(s);
-        v.setTextSize(size);
-        v.setTextColor(color);
-        if (bold) v.setTypeface(null, 1);
-        return v;
-    }
-
-    Drawable round(int color, int radius, int stroke) {
-        GradientDrawable g = new GradientDrawable();
-        g.setColor(color);
-        g.setCornerRadius(radius);
-        g.setStroke(dp(1), stroke);
-        return g;
-    }
-
-    void startLive() {
-        running = true;
-        bestSinr = -999;
-        status.setText("Running...");
-        handler.removeCallbacks(poller);
-        handler.post(poller);
-    }
-
-    void stopLive() {
-        running = false;
-        handler.removeCallbacks(poller);
-        status.setText("Stopped");
-    }
-
-    String base() {
-        String b = routerUrl.getText().toString().trim();
-        if (b.endsWith("/")) b = b.substring(0, b.length() - 1);
-        return b;
+    String esc(String x) {
+        if (x == null) return "";
+        return x.replace("\\", "\\\\").replace("`", "\\`").replace("\n", "\\n").replace("\r", "");
     }
 
     void login() {
-        status.setText("Logging in...");
+        js("setStatus('Logging in...');");
         new Thread(() -> {
             String debug = "";
             try {
                 String sesTok = httpGet("/api/webserver/SesTokInfo");
                 sessionCookie = pick(sesTok, "SesInfo");
                 requestToken = pick(sesTok, "TokInfo");
-                String pass = adminPass.getText().toString();
 
-                debug += "SesTokInfo OK\nToken length: " + requestToken.length() + "\nCookie length: " + sessionCookie.length() + "\n\n";
+                debug += "SesTokInfo OK\\nToken length: " + requestToken.length() + "\\nCookie length: " + sessionCookie.length() + "\\n\\n";
 
-                String pass1 = b64HexSha256(pass);
+                String pass1 = b64HexSha256(routerPass);
                 String finalPass = b64HexSha256("admin" + pass1 + requestToken);
                 String body = "<?xml version=\"1.0\" encoding=\"UTF-8\"?><request><Username>admin</Username><Password>" + finalPass + "</Password><password_type>4</password_type></request>";
+
                 HttpResult res = httpPost("/api/user/login", body, requestToken);
                 String newTok = headerToken(res);
                 if (newTok.length() > 0) requestToken = newTok;
 
-                debug += "LOGIN TRY 1 b64hex/type4\nHTTP " + res.code + "\n" + res.body + "\n\n";
+                debug += "LOGIN TRY b64hex/type4\\nHTTP " + res.code + "\\n" + res.body + "\\n";
 
-                final String finalDebug = debug;
-                final boolean ok = finalDebug.contains("<response>OK</response>");
-                runOnUiThread(() -> {
-                    rawTxt.setText(finalDebug);
-                    status.setText(ok ? "Logged in OK - press Test or Start" : "Login not OK - see raw");
-                });
-            } catch (Exception e) {
-                final String finalDebug = debug + "\nEXCEPTION:\n" + e.toString();
-                runOnUiThread(() -> {
-                    status.setText("Login failed: " + e.getClass().getSimpleName());
-                    rawTxt.setText(finalDebug);
-                });
+                boolean ok = debug.contains("<response>OK</response>");
+                js("setRaw(`" + esc(debug) + "`); setStatus('" + (ok ? "Logged in OK - press Start Live" : "Login not OK - see raw reply") + "');");
+            } catch(Exception e) {
+                debug += "\\nEXCEPTION:\\n" + e.toString();
+                js("setRaw(`" + esc(debug) + "`); setStatus('Login failed');");
             }
         }).start();
     }
 
     void readSignal() {
-        status.setText("Reading...");
+        js("setStatus('Reading router signal...');");
         new Thread(() -> {
             try {
                 String xml = httpGet("/api/device/signal");
-                runOnUiThread(() -> updateFromXml(xml));
-            } catch (Exception e) {
-                runOnUiThread(() -> {
-                    status.setText("Read failed: " + e.getClass().getSimpleName());
-                    rawTxt.setText(e.toString());
-                });
+                String sinr = pick(xml, "sinr", "snr");
+                String rsrp = pick(xml, "rsrp");
+                String rsrq = pick(xml, "rsrq");
+                String rssi = pick(xml, "rssi");
+                String band = pick(xml, "band");
+                String pci = pick(xml, "pci");
+                String earfcn = pick(xml, "earfcn");
+                String cell = pick(xml, "cell_id");
+                String enodeb = pick(xml, "enodeb_id");
+
+                double sinrNum = num(sinr);
+                double rsrqNum = num(rsrq);
+                double rsrpNum = num(rsrp);
+                int quality = qualityScore(sinrNum, rsrqNum, rsrpNum);
+
+                if (sinrNum > -900) {
+                    if (sinrNum > bestSinr) {
+                        bestSinr = sinrNum;
+                        vibrate();
+                    }
+                    int duration = sinrNum >= 20 ? 130 : sinrNum >= 13 ? 90 : sinrNum >= 5 ? 60 : 40;
+                    tone.startTone(ToneGenerator.TONE_PROP_BEEP, duration);
+                }
+
+                String status = sinr.length() == 0 ? (xml.toLowerCase().contains("<error>") ? "Router returned error XML" : "Connected but no SINR found") : "Updated OK";
+                js("updateLive({status:`" + esc(status) + "`, sinr:`" + esc(empty(sinr)) + "`, rsrp:`" + esc(empty(rsrp)) + "`, rsrq:`" + esc(empty(rsrq)) + "`, rssi:`" + esc(empty(rssi)) + "`, band:`" + esc(band.length() > 0 ? "B" + band : "--") + "`, pci:`" + esc(empty(pci)) + "`, earfcn:`" + esc(empty(earfcn)) + "`, cell:`" + esc(empty(cell)) + "`, enodeb:`" + esc(empty(enodeb)) + "`, quality:`" + (quality < 0 ? "--" : quality) + "`, best:`" + (bestSinr > -900 ? bestSinr + " dB" : "--") + "`, raw:`" + esc(xml) + "`});");
+            } catch(Exception e) {
+                js("setStatus('Read failed'); setRaw(`" + esc(e.toString()) + "`);");
             }
         }).start();
     }
 
     String httpGet(String path) throws Exception {
-        URL url = new URL(base() + path);
-        HttpURLConnection con = (HttpURLConnection) url.openConnection();
+        HttpURLConnection con = (HttpURLConnection)new URL(routerBase + path).openConnection();
         con.setConnectTimeout(5000);
         con.setReadTimeout(7000);
         con.setRequestMethod("GET");
@@ -418,14 +162,11 @@ public class MainActivity extends Activity {
         con.setRequestProperty("User-Agent", "Mozilla/5.0 SignalScout");
         con.setRequestProperty("X-Requested-With", "XMLHttpRequest");
         if (sessionCookie.length() > 0) con.setRequestProperty("Cookie", sessionCookie);
-        int code = con.getResponseCode();
-        InputStream is = code >= 400 ? con.getErrorStream() : con.getInputStream();
-        return readAll(is);
+        return readAll(con.getResponseCode() >= 400 ? con.getErrorStream() : con.getInputStream());
     }
 
-    HttpResult httpPost(String path, String body, String token) throws Exception {
-        URL url = new URL(base() + path);
-        HttpURLConnection con = (HttpURLConnection) url.openConnection();
+    HttpResult httpPost(String path, String body, String tok) throws Exception {
+        HttpURLConnection con = (HttpURLConnection)new URL(routerBase + path).openConnection();
         con.setConnectTimeout(5000);
         con.setReadTimeout(7000);
         con.setRequestMethod("POST");
@@ -435,13 +176,12 @@ public class MainActivity extends Activity {
         con.setRequestProperty("User-Agent", "Mozilla/5.0 SignalScout");
         con.setRequestProperty("X-Requested-With", "XMLHttpRequest");
         if (sessionCookie.length() > 0) con.setRequestProperty("Cookie", sessionCookie);
-        if (token.length() > 0) con.setRequestProperty("__RequestVerificationToken", token);
+        if (tok.length() > 0) con.setRequestProperty("__RequestVerificationToken", tok);
         OutputStream os = con.getOutputStream();
         os.write(body.getBytes("UTF-8"));
         os.close();
         int code = con.getResponseCode();
-        InputStream is = code >= 400 ? con.getErrorStream() : con.getInputStream();
-        return new HttpResult(code, readAll(is), con.getHeaderFields());
+        return new HttpResult(code, readAll(code >= 400 ? con.getErrorStream() : con.getInputStream()), con.getHeaderFields());
     }
 
     String readAll(InputStream is) throws Exception {
@@ -449,7 +189,7 @@ public class MainActivity extends Activity {
         BufferedReader br = new BufferedReader(new InputStreamReader(is));
         StringBuilder sb = new StringBuilder();
         String line;
-        while ((line = br.readLine()) != null) sb.append(line).append("\n");
+        while((line = br.readLine()) != null) sb.append(line).append("\n");
         br.close();
         return sb.toString();
     }
@@ -464,46 +204,21 @@ public class MainActivity extends Activity {
         return "";
     }
 
-    void updateFromXml(String xml) {
-        rawTxt.setText("HTTP 200\n\n" + xml);
-
-        String sinr = pick(xml, "sinr", "snr");
-        String rsrp = pick(xml, "rsrp");
-        String rsrq = pick(xml, "rsrq");
-        String rssi = pick(xml, "rssi");
-        String band = pick(xml, "band");
-        String pci = pick(xml, "pci");
-        String earfcn = pick(xml, "earfcn");
-        String cell = pick(xml, "cell_id");
-        String enodeb = pick(xml, "enodeb_id");
-
-        double sinrNum = num(sinr);
-        int quality = qualityScore(sinrNum, num(rsrq), num(rsrp));
-
-        status.setText(sinr.length() == 0 ? (xml.toLowerCase().contains("<error>") ? "Router returned error XML" : "Connected but no SINR found") : "Updated OK");
-        qualityBig.setText("Quality " + (quality < 0 ? "--" : quality) + " / 100");
-        qualityBig.setTextColor(qualityColor(quality));
-        sinrBig.setText(sinr.length() > 0 ? sinr : "-- dB");
-        sinrBig.setTextColor(sinrColor(sinrNum));
-
-        rsrpTxt.setText("RSRP\n" + empty(rsrp));
-        rsrpTxt.setTextColor(rsrpColor(num(rsrp)));
-        rsrqTxt.setText("RSRQ\n" + empty(rsrq));
-        rsrqTxt.setTextColor(rsrqColor(num(rsrq)));
-        rssiTxt.setText("RSSI\n" + empty(rssi));
-        bandTxt.setText("Band\n" + (band.length() > 0 ? "B" + band : "--"));
-
-        cellTxt.setText("Connected Cell\nPCI: " + empty(pci) + "\nEARFCN: " + empty(earfcn) + "\nCell ID: " + empty(cell) + "\neNodeB: " + empty(enodeb));
-
-        if (sinrNum > -900) {
-            if (sinrNum > bestSinr) {
-                bestSinr = sinrNum;
-                bestTxt.setText("Best " + bestSinr + " dB");
-                vibrate();
-            }
-            beepForSinr(sinrNum);
+    String pick(String xml, String... tags) {
+        for (String tag : tags) {
+            Matcher m = Pattern.compile("<" + tag + ">(.*?)</" + tag + ">", Pattern.CASE_INSENSITIVE | Pattern.DOTALL).matcher(xml);
+            if (m.find()) return m.group(1).trim();
         }
+        return "";
     }
+
+    double num(String s) {
+        Matcher m = Pattern.compile("-?\\d+(\\.\\d+)?").matcher(s == null ? "" : s);
+        if (m.find()) try { return Double.parseDouble(m.group()); } catch(Exception ignored) {}
+        return -999;
+    }
+
+    String empty(String s) { return s == null || s.length() == 0 ? "--" : s; }
 
     int qualityScore(double sinr, double rsrq, double rsrp) {
         if (sinr < -900) return -1;
@@ -516,37 +231,15 @@ public class MainActivity extends Activity {
 
     int clamp(int v, int min, int max) { return Math.max(min, Math.min(max, v)); }
 
-    void beepForSinr(double sinr) {
-        int duration = 40;
-        if (sinr >= 20) duration = 130;
-        else if (sinr >= 13) duration = 90;
-        else if (sinr >= 5) duration = 60;
-        tone.startTone(ToneGenerator.TONE_PROP_BEEP, duration);
-    }
-
     void vibrate() {
         try {
-            if (vibrator == null) return;
-            if (Build.VERSION.SDK_INT >= 26) vibrator.vibrate(VibrationEffect.createOneShot(80, VibrationEffect.DEFAULT_AMPLITUDE));
-            else vibrator.vibrate(80);
-        } catch (Exception ignored) {}
+            Vibrator v = vibrator;
+            if (v == null) return;
+            if (Build.VERSION.SDK_INT >= 26) v.vibrate(VibrationEffect.createOneShot(80, VibrationEffect.DEFAULT_AMPLITUDE));
+            else v.vibrate(80);
+        } catch(Exception ignored) {}
     }
 
-    String pick(String xml, String... tags) {
-        for (String tag : tags) {
-            Matcher m = Pattern.compile("<" + tag + ">(.*?)</" + tag + ">", Pattern.CASE_INSENSITIVE | Pattern.DOTALL).matcher(xml);
-            if (m.find()) return m.group(1).trim();
-        }
-        return "";
-    }
-
-    double num(String s) {
-        Matcher m = Pattern.compile("-?\\d+(\\.\\d+)?").matcher(s == null ? "" : s);
-        if (m.find()) try { return Double.parseDouble(m.group()); } catch (Exception ignored) {}
-        return -999;
-    }
-
-    String empty(String s) { return s == null || s.length() == 0 ? "--" : s; }
     byte[] sha256Bytes(String input) throws Exception { return MessageDigest.getInstance("SHA-256").digest(input.getBytes("UTF-8")); }
 
     String sha256Hex(String input) throws Exception {
@@ -560,17 +253,6 @@ public class MainActivity extends Activity {
         return Base64.encodeToString(sha256Hex(input).getBytes("UTF-8"), Base64.NO_WRAP);
     }
 
-    int qualityColor(int q) {
-        if (q >= 85) return GREEN;
-        if (q >= 65) return Color.rgb(200,255,90);
-        if (q >= 40) return AMBER;
-        return RED;
-    }
-
-    int sinrColor(double v) { if (v >= 20) return GREEN; if (v >= 13) return Color.rgb(200,255,90); if (v >= 5) return AMBER; return RED; }
-    int rsrpColor(double v) { if (v >= -85) return GREEN; if (v >= -95) return Color.rgb(200,255,90); if (v >= -105) return AMBER; return RED; }
-    int rsrqColor(double v) { if (v >= -10) return GREEN; if (v >= -13) return Color.rgb(200,255,90); if (v >= -15) return AMBER; return RED; }
-
     void trustAllHttps() {
         try {
             TrustManager[] t = new TrustManager[]{new X509TrustManager() {
@@ -582,7 +264,7 @@ public class MainActivity extends Activity {
             sc.init(null, t, new SecureRandom());
             HttpsURLConnection.setDefaultSSLSocketFactory(sc.getSocketFactory());
             HttpsURLConnection.setDefaultHostnameVerifier((h, s) -> true);
-        } catch (Exception ignored) {}
+        } catch(Exception ignored) {}
     }
 
     static class HttpResult {
@@ -590,5 +272,138 @@ public class MainActivity extends Activity {
         String body;
         Map<String, List<String>> headers;
         HttpResult(int c, String b, Map<String, List<String>> h) { code = c; body = b; headers = h; }
+    }
+
+    String html() {
+        return """
+<!DOCTYPE html>
+<html>
+<head>
+<meta name='viewport' content='width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no'>
+<style>
+:root{--bg:#030f1b;--card:#081d31;--card2:#0b2a46;--blue:#00b4ff;--green:#63ff63;--yellow:#d7ff4f;--amber:#ffbd38;--red:#ff5252;--text:#fff;--muted:#92a7ba}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{margin:0;background:var(--bg);font-family:Arial,Helvetica,sans-serif;color:var(--text);overflow:hidden}
+#app{height:100vh;display:flex;flex-direction:column}
+#content{flex:1;overflow:auto;padding:10px;background:radial-gradient(circle at top,#06233d 0,#030f1b 45%,#020811 100%)}
+.screen{display:none}.screen.active{display:block}
+.mock{width:100%;border-radius:18px;box-shadow:0 0 22px rgba(0,180,255,.22);display:block;background:#020b14}
+.mock.full{border-radius:0;box-shadow:none}
+.heroBtn{width:76%;margin:-72px auto 18px auto;display:block;border:none;border-radius:22px;padding:15px 18px;background:linear-gradient(135deg,#008cff,#00b4ff);color:white;font-size:19px;font-weight:700;box-shadow:0 8px 22px rgba(0,140,255,.45);position:relative;z-index:2}
+.title{text-align:center;font-size:22px;font-weight:800;margin:8px 0 2px}
+.sub{text-align:center;color:var(--blue);font-size:14px;margin-bottom:12px}
+.card{background:rgba(8,29,49,.92);border:1px solid rgba(0,180,255,.25);border-radius:18px;padding:15px;margin:10px 0;box-shadow:inset 0 0 18px rgba(0,180,255,.05)}
+.card h3{margin:0 0 8px 0;font-size:18px}.card p{margin:0;color:#d8ecff;line-height:1.4}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.metric{background:rgba(8,29,49,.92);border:1px solid rgba(0,180,255,.25);border-radius:18px;padding:17px;text-align:center}
+.metric .label{color:#dcefff;font-size:16px}.metric .value{font-size:30px;color:var(--green);font-weight:800;margin-top:6px}.metric .small{font-size:12px;color:#8edfff}
+input{width:100%;background:#061a2b;border:1px solid rgba(0,180,255,.22);border-radius:12px;color:#fff;padding:14px;margin:6px 0;font-size:16px;outline:none}
+.btn{width:100%;border:none;border-radius:14px;background:linear-gradient(135deg,#007ad9,#00a6ff);color:#fff;font-weight:800;padding:14px;margin:7px 0;font-size:15px;box-shadow:0 6px 16px rgba(0,140,255,.28)}
+.btn.dark{background:#284762}.btn.red{background:#d92d2d}
+.row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+.status{text-align:center;color:#c5d8e8;margin:8px}
+.quality{font-size:44px;text-align:center;color:var(--green);font-weight:900;margin:10px 0}
+.sinr{font-size:82px;text-align:center;color:var(--red);font-weight:900;margin:2px 0 6px}
+.raw{font-family:monospace;color:#8ea4b5;font-size:11px;white-space:pre-wrap;max-height:170px;overflow:auto}
+.progress{height:12px;background:#183753;border-radius:50px;overflow:hidden;margin:12px 0}.bar{height:100%;width:75%;background:linear-gradient(90deg,#62ff59,#00b4ff)}
+.nav{height:62px;background:rgba(2,10,19,.97);display:grid;grid-template-columns:repeat(5,1fr);border-top:1px solid rgba(0,180,255,.12)}
+.nav button{background:none;border:none;color:#7d91a7;font-size:12px}.nav button.active{color:var(--blue);font-weight:800}.nav span{display:block;font-size:21px;margin-bottom:1px}
+</style>
+</head>
+<body>
+<div id='app'>
+<div id='content'>
+
+<section id='home' class='screen active'>
+<img class='mock full' src='file:///android_res/drawable/screen_home.png'>
+<button class='heroBtn' onclick='show("live")'>Tap to Begin ›</button>
+<div class='card'><h3>What are you trying to achieve today?</h3><p>🛰️ New Antenna Installation<br>📶 Improve Existing Installation<br>🚀 Find the Fastest Connection<br>🔍 Diagnose Poor Signal<br>⚙️ Advanced / Professional Mode</p></div>
+<button class='btn' onclick='show("live")'>Live Signal Finder</button>
+<button class='btn' onclick='show("scan")'>Band Scanner</button>
+</section>
+
+<section id='live' class='screen'>
+<img class='mock' src='file:///android_res/drawable/screen_dashboard.png'>
+<div class='title'>Router Controls</div><div class='sub'>Live router signal and antenna alignment</div>
+<input id='url' value='https://hirouter.net'>
+<input id='pass' type='password' placeholder='Router admin password'>
+<button class='btn' onclick='saveRouter();SignalScout.login()'>Login to Router</button>
+<div class='row'><button class='btn dark' onclick='saveRouter();SignalScout.startLive()'>Start</button><button class='btn dark' onclick='SignalScout.stopLive()'>Stop</button><button class='btn dark' onclick='resetBest()'>Reset</button></div>
+<button class='btn' onclick='saveRouter();SignalScout.testRead()'>Test Read Once</button>
+<div id='status' class='status'>Not logged in</div>
+<div id='quality' class='quality'>Quality -- / 100</div>
+<div id='sinr' class='sinr'>-- dB</div>
+<div id='best' class='status'>Best --</div>
+<div class='grid'>
+<div class='metric'><div class='label'>RSRP</div><div id='rsrp' class='value'>--</div><div class='small'>Signal power</div></div>
+<div class='metric'><div class='label'>RSRQ</div><div id='rsrq' class='value'>--</div><div class='small'>Signal quality</div></div>
+<div class='metric'><div class='label'>RSSI</div><div id='rssi' class='value'>--</div><div class='small'>Received strength</div></div>
+<div class='metric'><div class='label'>Band</div><div id='band' class='value'>--</div><div class='small'>Current LTE band</div></div>
+</div>
+<div class='card'><h3>Connected Cell</h3><p id='cellinfo'>PCI: --<br>EARFCN: --<br>Cell ID: --<br>eNodeB: --</p></div>
+<div class='card'><h3>Raw Reply</h3><div id='raw' class='raw'>Raw reply will show here.</div></div>
+</section>
+
+<section id='scan' class='screen'>
+<img class='mock' src='file:///android_res/drawable/screen_scan.png'>
+<div class='card'><h3>Band Scanner</h3><p>Scanning all available bands for the best signal and combination.</p><div class='progress'><div class='bar'></div></div><p>Smart Scan will test B1, B3, B7, B20, B28 and common carrier aggregation pairs.</p></div>
+<button class='btn' onclick='alert("Band Scanner comes after router login is finished")'>Start Smart Scan</button>
+</section>
+
+<section id='tower' class='screen'>
+<img class='mock' src='file:///android_res/drawable/screen_tower.png'>
+<div class='card'><h3>Tower Direction</h3><p>Camera and compass tower finder coming soon. This will use PCI, eNodeB, EARFCN and best SINR direction.</p></div>
+</section>
+
+<section id='reports' class='screen'>
+<img class='mock' src='file:///android_res/drawable/screen_reports.png'>
+<div class='card'><h3>Installer Reports</h3><p>PDF reports will include router model, firmware, final bands, quality score, tower info and speed test results.</p></div>
+<button class='btn'>Export PDF Coming Soon</button>
+</section>
+
+<section id='more' class='screen'>
+<img class='mock' src='file:///android_res/drawable/screen_scout.png'>
+<div class='card'><h3>Signal Scout v1.1.0 beta</h3><p>Premium WebView UI build using Scout artwork and mockup-style screens.</p></div>
+<div class='card'><h3>Signal Quality Guide</h3><p>Excellent: 90-100<br>Good: 70-89<br>Needs Improvement: 40-69<br>Poor: 20-39<br>No Signal: 0-19</p></div>
+</section>
+
+</div>
+<nav class='nav'>
+<button id='nav-home' class='active' onclick='show("home")'><span>⌂</span>Home</button>
+<button id='nav-live' onclick='show("live")'><span>📶</span>Live</button>
+<button id='nav-scan' onclick='show("scan")'><span>🔍</span>Scan</button>
+<button id='nav-tower' onclick='show("tower")'><span>🧭</span>Tower</button>
+<button id='nav-reports' onclick='show("reports")'><span>📄</span>Reports</button>
+</nav>
+</div>
+<script>
+let best='--';
+function show(id){
+ document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+ document.getElementById(id).classList.add('active');
+ document.querySelectorAll('.nav button').forEach(b=>b.classList.remove('active'));
+ let n=document.getElementById('nav-'+id); if(n)n.classList.add('active');
+ document.getElementById('content').scrollTop=0;
+}
+function saveRouter(){ SignalScout.setRouter(document.getElementById('url').value,document.getElementById('pass').value); }
+function setStatus(s){ document.getElementById('status').innerText=s; }
+function setRaw(r){ document.getElementById('raw').innerText=r; }
+function resetBest(){ best='--'; document.getElementById('best').innerText='Best --'; }
+function updateLive(d){
+ setStatus(d.status);
+ document.getElementById('sinr').innerText=d.sinr;
+ document.getElementById('quality').innerText='Quality '+d.quality+' / 100';
+ document.getElementById('rsrp').innerText=d.rsrp;
+ document.getElementById('rsrq').innerText=d.rsrq;
+ document.getElementById('rssi').innerText=d.rssi;
+ document.getElementById('band').innerText=d.band;
+ document.getElementById('best').innerText='Best '+d.best;
+ document.getElementById('cellinfo').innerHTML='PCI: '+d.pci+'<br>EARFCN: '+d.earfcn+'<br>Cell ID: '+d.cell+'<br>eNodeB: '+d.enodeb;
+ setRaw(d.raw);
+}
+</script>
+</body>
+</html>
+""";
     }
 }
