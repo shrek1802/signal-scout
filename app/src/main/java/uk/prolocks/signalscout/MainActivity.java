@@ -106,10 +106,10 @@ public class MainActivity extends Activity {
                 debug += "LOGIN TRY b64hex/type4\\nHTTP " + res.code + "\\n" + res.body + "\\n";
 
                 boolean ok = debug.contains("<response>OK</response>");
-                js("setRaw(`" + esc(debug) + "`); setStatus('" + (ok ? "Logged in OK" : "Login not OK - see raw") + "');");
+                js("setRaw(`" + esc(debug) + "`); setStatus('" + (ok ? "Logged in OK" : "Login not OK - see raw") + "'); setRouterChip('" + (ok ? "Huawei B535 connected" : "Router not connected") + "');");
             } catch(Exception e) {
                 debug += "\\nEXCEPTION:\\n" + e.toString();
-                js("setRaw(`" + esc(debug) + "`); setStatus('Login failed');");
+                js("setRaw(`" + esc(debug) + "`); setStatus('Login failed'); setRouterChip('Router not connected');");
             }
         }).start();
     }
@@ -284,24 +284,26 @@ body{margin:0;background:#000;color:white;font-family:Arial,Helvetica,sans-serif
 .homeBtn{position:absolute;left:7.5%;right:7.5%;height:8.2%;border:none;border-radius:17px;background:transparent;color:transparent}
 #beginBtn{bottom:18.8%}
 #setupBtn{bottom:8.4%}
-.dashOverlay{position:absolute;inset:0}
-.liveText{position:absolute;font-weight:900;color:#65ff49;text-shadow:0 0 12px rgba(101,255,73,.28);text-align:center}
-#ovQuality{right:10%;top:10%;font-size:34px}
-#rsrp{left:22%;top:30.5%;font-size:37px}
-#sinr{right:23%;top:30.5%;font-size:37px}
-#rsrq{left:22%;top:45.8%;font-size:37px;color:#ffcc30}
-#rssi{right:23%;top:45.8%;font-size:37px}
-#band{left:19%;top:60.8%;font-size:27px}
-#quality{right:18%;top:61%;font-size:30px}
-#pci{left:13%;top:76.2%;font-size:14px;color:white}
-#earfcn{left:33%;top:76.2%;font-size:14px;color:white}
-#enodeb{left:56%;top:76.2%;font-size:14px;color:white}
-#cellid{right:14%;top:76.2%;font-size:14px;color:white}
-#status{left:12%;bottom:2.2%;font-size:12px;color:white;text-align:left}
-#updated{right:8%;bottom:2.2%;font-size:12px;color:white;text-align:right}
 #menuBtn{position:absolute;left:3%;top:2%;width:14%;height:9%;background:transparent;border:none;color:transparent}
 #routerBtn{position:absolute;right:2%;top:2%;width:14%;height:9%;background:transparent;border:none;color:transparent}
-.drawer{position:absolute;top:0;bottom:0;left:-78%;width:78%;z-index:10;transition:.25s;background:#020910;box-shadow:18px 0 40px rgba(0,0,0,.6)}
+.valueCover{position:absolute;background:rgba(3,12,20,.84);border-radius:12px;box-shadow:0 0 18px rgba(0,0,0,.42)}
+.liveText{position:absolute;font-weight:900;color:#65ff49;text-shadow:0 0 14px rgba(101,255,73,.35);text-align:center;line-height:1}
+.liveText.white{color:white}
+.liveText.yellow{color:#ffd13b}
+#ovQuality{right:9.5%;top:10.5%;font-size:34px}
+#rsrp{left:14%;top:33.8%;font-size:42px}
+#sinr{right:14%;top:33.8%;font-size:42px}
+#rsrq{left:14%;top:50.2%;font-size:42px}
+#rssi{right:14%;top:50.2%;font-size:42px}
+#band{left:13%;top:66.2%;font-size:31px}
+#quality{right:18%;top:66.4%;font-size:34px}
+#pci{left:10%;top:82.7%;font-size:16px}
+#earfcn{left:31%;top:82.7%;font-size:16px}
+#enodeb{left:55%;top:82.7%;font-size:16px}
+#cellid{right:10%;top:82.7%;font-size:16px}
+#status{left:7%;right:7%;bottom:3.2%;font-size:13px;color:white;text-align:left;font-weight:600}
+#updated{right:7%;bottom:3.2%;font-size:13px;color:#bde6ff;text-align:right;font-weight:600}
+.drawer{position:absolute;top:0;bottom:0;left:-82%;width:82%;z-index:10;transition:.25s;background:#020910;box-shadow:18px 0 40px rgba(0,0,0,.6)}
 .drawer.open{left:0}.drawer img{width:100%;height:100%;object-fit:cover}
 .scrim{position:absolute;inset:0;background:rgba(0,0,0,.55);z-index:9;display:none}.scrim.open{display:block}
 .router{position:absolute;left:0;right:0;bottom:-100%;background:#071d28;border-radius:24px 24px 0 0;border:1px solid rgba(101,255,73,.28);padding:18px;z-index:20;transition:.25s}
@@ -321,23 +323,35 @@ body{margin:0;background:#000;color:white;font-family:Arial,Helvetica,sans-serif
 
 <section id='dashboard' class='screen'>
 <img class='bg' src='dashboard_bg.png'>
-<div class='dashOverlay'>
 <button id='menuBtn' onclick='openMenu()'>menu</button>
 <button id='routerBtn' onclick='openRouter()'>router</button>
+
+<div class='valueCover' style='right:7.5%;top:9.5%;width:24%;height:6.7%'></div>
 <div id='ovQuality' class='liveText'>--</div>
+
+<div class='valueCover' style='left:9%;top:32.8%;width:33%;height:7.5%'></div>
+<div class='valueCover' style='right:9%;top:32.8%;width:33%;height:7.5%'></div>
+<div class='valueCover' style='left:9%;top:49.2%;width:33%;height:7.5%'></div>
+<div class='valueCover' style='right:9%;top:49.2%;width:33%;height:7.5%'></div>
+
 <div id='rsrp' class='liveText'>--</div>
 <div id='sinr' class='liveText'>--</div>
-<div id='rsrq' class='liveText'>--</div>
+<div id='rsrq' class='liveText yellow'>--</div>
 <div id='rssi' class='liveText'>--</div>
-<div id='band' class='liveText'>--</div>
+
+<div class='valueCover' style='left:9%;top:65.2%;width:33%;height:7.8%'></div>
+<div class='valueCover' style='right:9%;top:65.2%;width:33%;height:7.8%'></div>
+<div id='band' class='liveText white'>--</div>
 <div id='quality' class='liveText'>--</div>
-<div id='pci' class='liveText'>--</div>
-<div id='earfcn' class='liveText'>--</div>
-<div id='enodeb' class='liveText'>--</div>
-<div id='cellid' class='liveText'>--</div>
-<div id='status' class='liveText'>Not logged in</div>
-<div id='updated' class='liveText'>Updated --</div>
-</div>
+
+<div class='valueCover' style='left:7%;right:7%;top:81.2%;height:5.5%'></div>
+<div id='pci' class='liveText white'>--</div>
+<div id='earfcn' class='liveText white'>--</div>
+<div id='enodeb' class='liveText white'>--</div>
+<div id='cellid' class='liveText white'>--</div>
+
+<div id='status' class='liveText white'>Not logged in</div>
+<div id='updated' class='liveText white'>Updated --</div>
 </section>
 
 <section id='scan' class='screen'><div class='placeholder'><h1>Smart Band Scanner</h1><p>Next screen to wire in.</p></div></section>
@@ -370,8 +384,9 @@ function closeAll(){document.getElementById('drawer').classList.remove('open');d
 function saveRouter(){SignalScout.setRouter(document.getElementById('url').value,document.getElementById('pass').value)}
 function setStatus(s){document.getElementById('status').innerText=s}
 function setRaw(r){document.getElementById('raw').innerText=r}
+function setRouterChip(s){}
 function updateLive(d){
- setStatus(d.status);
+ setStatus('● '+d.status+'   Best '+d.best);
  setRaw(d.raw);
  document.getElementById('ovQuality').innerText=d.quality;
  document.getElementById('quality').innerText=d.quality;

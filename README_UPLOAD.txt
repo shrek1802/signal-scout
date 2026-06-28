@@ -1,17 +1,17 @@
-Signal Scout v3.1.0 artwork background build
+Signal Scout v3.2.0 dashboard focus build
 
 Use:
 1. Rename this ZIP to upload.zip
 2. Upload to repo root
 3. Run Apply upload.zip Update
 4. Run Release Manager
-5. Version: 3.1.0
+5. Version: 3.2.0
 6. Channel: beta
 
-This version uses the approved artwork as the app background:
-- Home uses the polished welcome screen
-- Begin Survey and First Time Setup buttons are invisible touch zones over the artwork buttons
-- Dashboard uses the dashboard artwork as a background
-- Live values overlay the dashboard
-- Side menu uses artwork
-- Router controls are hidden in a slide-up panel
+Changes:
+- Keeps the nice v3.1 home screen
+- Improves dashboard overlay
+- Adds larger live dashboard numbers
+- Covers old/fake dashboard values before overlaying live values
+- Keeps router controls hidden behind the 3-dot tap area
+- Keeps side menu hidden behind the hamburger tap area
