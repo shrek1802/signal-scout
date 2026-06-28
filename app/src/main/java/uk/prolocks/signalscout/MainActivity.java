@@ -3,9 +3,11 @@ package uk.prolocks.signalscout;
 import android.app.Activity;
 import android.os.*;
 import android.webkit.*;
+import android.widget.Toast;
 import android.annotation.SuppressLint;
 import android.media.*;
 import android.content.*;
+import android.content.Intent;
 import android.util.Base64;
 import java.io.*;
 import java.net.*;
@@ -64,6 +66,21 @@ public class MainActivity extends Activity {
     }
 
     public class Bridge {
+        @JavascriptInterface public void openInstallerActivity(String sinr, String best, String status) {
+            runOnUiThread(() -> {
+                try {
+                    Intent i = new Intent(MainActivity.this, InstallerActivity.class);
+                    i.putExtra("sinr", sinr == null || sinr.length() == 0 ? "--" : sinr);
+                    i.putExtra("best", best == null || best.length() == 0 ? "--" : best);
+                    i.putExtra("status", status == null || status.length() == 0 ? "HOLD POSITION" : status);
+                    MainActivity.this.startActivity(i);
+                } catch (Exception e) {
+                    Toast.makeText(MainActivity.this, "Installer Mode failed: " + e.getMessage(), Toast.LENGTH_LONG).show();
+                    js("setStatus('Installer Mode failed');");
+                }
+            });
+        }
+
         @JavascriptInterface public void setRouter(String url, String pass) {
             routerBase = url == null || url.trim().length() == 0 ? "AUTO" : url.trim();
             if (routerBase.endsWith("/")) routerBase = routerBase.substring(0, routerBase.length() - 1);
@@ -617,20 +634,13 @@ function openInstallerMode(){
   let status = document.getElementById('optDirection') ? document.getElementById('optDirection').innerText : 'HOLD POSITION';
 
   let sub = document.getElementById('optSub');
-  if(sub) sub.innerText = 'Opening Installer Mode...';
+  if(sub) sub.innerText = 'Opening native Installer Mode...';
 
-  try{
-    SignalScout.openInstallerActivity(String(sinr), String(best), String(status));
-  }catch(e){
-    fallbackInstallerMode();
-  }
+  SignalScout.openInstallerActivity(String(sinr), String(best), String(status));
 }
 
 function fallbackInstallerMode(){
-  let overlay = document.getElementById('installerOverlay');
-  if(overlay){
-    overlay.classList.add('active');
-  }
+  setStatus('Native Installer Mode required');
 }
 
 function closeInstallerMode(){
