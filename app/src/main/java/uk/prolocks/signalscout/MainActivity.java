@@ -65,7 +65,7 @@ public class MainActivity extends Activity {
         @JavascriptInterface public void startLive() {
             running = true;
             bestSinr = -999;
-            js("setStatus('Running live data'); closeRouter();");
+            js("setStatus('Running live data'); closeAll();");
             handler.removeCallbacks(poller);
             handler.post(poller);
         }
@@ -106,10 +106,10 @@ public class MainActivity extends Activity {
                 debug += "LOGIN TRY b64hex/type4\\nHTTP " + res.code + "\\n" + res.body + "\\n";
 
                 boolean ok = debug.contains("<response>OK</response>");
-                js("setRaw(`" + esc(debug) + "`); setStatus('" + (ok ? "Logged in OK" : "Login not OK - see raw") + "'); setRouterChip('" + (ok ? "Huawei B535 connected" : "Router not connected") + "');");
+                js("setRaw(`" + esc(debug) + "`); setStatus('" + (ok ? "Logged in OK" : "Login not OK - see raw") + "'); setRouterState('" + (ok ? "Connected" : "Not connected") + "');");
             } catch(Exception e) {
                 debug += "\\nEXCEPTION:\\n" + e.toString();
-                js("setRaw(`" + esc(debug) + "`); setStatus('Login failed'); setRouterChip('Router not connected');");
+                js("setRaw(`" + esc(debug) + "`); setStatus('Login failed'); setRouterState('Not connected');");
             }
         }).start();
     }
@@ -284,27 +284,29 @@ body{margin:0;background:#000;color:white;font-family:Arial,Helvetica,sans-serif
 .homeBtn{position:absolute;left:7.5%;right:7.5%;height:8.2%;border:none;border-radius:17px;background:transparent;color:transparent}
 #beginBtn{bottom:18.8%}
 #setupBtn{bottom:8.4%}
-#menuBtn{position:absolute;left:3%;top:2%;width:14%;height:9%;background:transparent;border:none;color:transparent}
-#routerBtn{position:absolute;right:2%;top:2%;width:14%;height:9%;background:transparent;border:none;color:transparent}
-.valueCover{position:absolute;background:rgba(3,12,20,.84);border-radius:12px;box-shadow:0 0 18px rgba(0,0,0,.42)}
-.liveText{position:absolute;font-weight:900;color:#65ff49;text-shadow:0 0 14px rgba(101,255,73,.35);text-align:center;line-height:1}
-.liveText.white{color:white}
-.liveText.yellow{color:#ffd13b}
-#ovQuality{right:9.5%;top:10.5%;font-size:34px}
-#rsrp{left:14%;top:33.8%;font-size:42px}
-#sinr{right:14%;top:33.8%;font-size:42px}
-#rsrq{left:14%;top:50.2%;font-size:42px}
-#rssi{right:14%;top:50.2%;font-size:42px}
-#band{left:13%;top:66.2%;font-size:31px}
-#quality{right:18%;top:66.4%;font-size:34px}
-#pci{left:10%;top:82.7%;font-size:16px}
-#earfcn{left:31%;top:82.7%;font-size:16px}
-#enodeb{left:55%;top:82.7%;font-size:16px}
-#cellid{right:10%;top:82.7%;font-size:16px}
-#status{left:7%;right:7%;bottom:3.2%;font-size:13px;color:white;text-align:left;font-weight:600}
-#updated{right:7%;bottom:3.2%;font-size:13px;color:#bde6ff;text-align:right;font-weight:600}
-.drawer{position:absolute;top:0;bottom:0;left:-82%;width:82%;z-index:10;transition:.25s;background:#020910;box-shadow:18px 0 40px rgba(0,0,0,.6)}
-.drawer.open{left:0}.drawer img{width:100%;height:100%;object-fit:cover}
+#menuBtn{position:absolute;left:2%;top:2%;width:13%;height:7%;background:transparent;border:none;color:transparent;z-index:3}
+#routerBtn{position:absolute;right:2%;top:2%;width:13%;height:7%;background:transparent;border:none;color:transparent;z-index:3}
+.liveText{position:absolute;font-weight:900;color:#69ff4b;text-shadow:0 0 14px rgba(105,255,75,.5);text-align:center;line-height:1;z-index:2}
+.liveText.white{color:white}.liveText.yellow{color:#ffd13b}
+#quality{left:38%;right:38%;top:21.6%;font-size:58px}
+#qualityWord{left:35%;right:35%;top:29.2%;font-size:19px;color:#69ff4b}
+#sinr{left:8%;width:35%;top:48.5%;font-size:52px}
+#rsrp{right:8%;width:35%;top:48.5%;font-size:52px}
+#rsrq{left:8%;width:35%;top:64.7%;font-size:52px;color:#ffd13b}
+#rssi{right:8%;width:35%;top:64.7%;font-size:52px}
+#band{left:8%;width:35%;top:81%;font-size:36px}
+#bandFreq{left:8%;width:35%;top:86.3%;font-size:17px;color:white;font-weight:500}
+#sigQual{right:8%;width:35%;top:81.5%;font-size:32px}
+#earfcn{left:9%;width:20%;bottom:8.6%;font-size:17px;color:white}
+#enodeb{left:31%;width:20%;bottom:8.6%;font-size:17px;color:white}
+#cellid{left:53%;width:20%;bottom:8.6%;font-size:17px;color:white}
+#pci{right:7%;width:20%;bottom:8.6%;font-size:17px;color:white}
+#status{left:4%;right:42%;bottom:2.3%;font-size:13px;color:white;text-align:left;font-weight:600}
+#updated{right:7%;bottom:2.3%;font-size:13px;color:#bde6ff;text-align:right;font-weight:600}
+.drawer{position:absolute;top:0;bottom:0;left:-82%;width:82%;z-index:10;transition:.25s;background:#020910;box-shadow:18px 0 40px rgba(0,0,0,.6);padding:26px 18px}
+.drawer.open{left:0}
+.drawer h1{color:#69ff4b;margin:20px 0 2px;font-size:32px}.drawer h2{margin:0 0 18px;font-size:18px}
+.menuItem{height:48px;border-radius:12px;display:flex;align-items:center;gap:14px;padding:0 12px;font-size:16px}.menuItem.active{background:rgba(105,255,75,.18);color:#69ff4b}.menuFoot{position:absolute;bottom:24px;left:18px;right:18px;color:#a8bac1;font-size:13px}
 .scrim{position:absolute;inset:0;background:rgba(0,0,0,.55);z-index:9;display:none}.scrim.open{display:block}
 .router{position:absolute;left:0;right:0;bottom:-100%;background:#071d28;border-radius:24px 24px 0 0;border:1px solid rgba(101,255,73,.28);padding:18px;z-index:20;transition:.25s}
 .router.open{bottom:0}.router h2{text-align:center;margin:0 0 12px}.router input{width:100%;background:#06131d;border:1px solid rgba(101,255,73,.24);border-radius:12px;padding:13px;color:white;margin:6px 0;font-size:16px}.btn{width:100%;height:46px;border:none;border-radius:12px;background:linear-gradient(135deg,#0a84ff,#00b8ff);color:white;font-weight:800;font-size:15px;margin-top:8px}.btn.dark{background:#1c3440}.row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}.raw{font-family:monospace;color:#a7b9bf;font-size:10px;white-space:pre-wrap;max-height:105px;overflow:auto;margin-top:8px}
@@ -322,33 +324,26 @@ body{margin:0;background:#000;color:white;font-family:Arial,Helvetica,sans-serif
 </section>
 
 <section id='dashboard' class='screen'>
-<img class='bg' src='dashboard_bg.png'>
+<img class='bg' src='dashboard_template.png'>
 <button id='menuBtn' onclick='openMenu()'>menu</button>
 <button id='routerBtn' onclick='openRouter()'>router</button>
 
-<div class='valueCover' style='right:7.5%;top:9.5%;width:24%;height:6.7%'></div>
-<div id='ovQuality' class='liveText'>--</div>
+<div id='quality' class='liveText'>--</div>
+<div id='qualityWord' class='liveText'>Waiting</div>
 
-<div class='valueCover' style='left:9%;top:32.8%;width:33%;height:7.5%'></div>
-<div class='valueCover' style='right:9%;top:32.8%;width:33%;height:7.5%'></div>
-<div class='valueCover' style='left:9%;top:49.2%;width:33%;height:7.5%'></div>
-<div class='valueCover' style='right:9%;top:49.2%;width:33%;height:7.5%'></div>
-
-<div id='rsrp' class='liveText'>--</div>
 <div id='sinr' class='liveText'>--</div>
+<div id='rsrp' class='liveText'>--</div>
 <div id='rsrq' class='liveText yellow'>--</div>
 <div id='rssi' class='liveText'>--</div>
 
-<div class='valueCover' style='left:9%;top:65.2%;width:33%;height:7.8%'></div>
-<div class='valueCover' style='right:9%;top:65.2%;width:33%;height:7.8%'></div>
-<div id='band' class='liveText white'>--</div>
-<div id='quality' class='liveText'>--</div>
+<div id='band' class='liveText'>--</div>
+<div id='bandFreq' class='liveText white'>--</div>
+<div id='sigQual' class='liveText'>--</div>
 
-<div class='valueCover' style='left:7%;right:7%;top:81.2%;height:5.5%'></div>
-<div id='pci' class='liveText white'>--</div>
 <div id='earfcn' class='liveText white'>--</div>
 <div id='enodeb' class='liveText white'>--</div>
 <div id='cellid' class='liveText white'>--</div>
+<div id='pci' class='liveText white'>--</div>
 
 <div id='status' class='liveText white'>Not logged in</div>
 <div id='updated' class='liveText white'>Updated --</div>
@@ -358,7 +353,19 @@ body{margin:0;background:#000;color:white;font-family:Arial,Helvetica,sans-serif
 <section id='tower' class='screen'><div class='placeholder'><h1>Tower Finder</h1><p>Next screen to wire in.</p></div></section>
 <section id='reports' class='screen'><div class='placeholder'><h1>Reports</h1><p>Next screen to wire in.</p></div></section>
 
-<div id='drawer' class='drawer'><img src='menu_bg.png'></div>
+<div id='drawer' class='drawer'>
+  <h1>Scout</h1>
+  <h2>Signal Scout</h2>
+  <div class='menuItem active' onclick='show("dashboard")'>🏠 Dashboard</div>
+  <div class='menuItem' onclick='show("scan")'>📡 Smart Band Scanner</div>
+  <div class='menuItem' onclick='show("scan")'>🔒 Best Band Lock</div>
+  <div class='menuItem' onclick='show("tower")'>🧭 Tower Finder</div>
+  <div class='menuItem' onclick='show("scan")'>📈 Live Graphs</div>
+  <div class='menuItem' onclick='show("reports")'>📄 Reports</div>
+  <div class='menuItem' onclick='openRouter()'>⚙ Router Setup</div>
+  <div class='menuItem'>ℹ About</div>
+  <div class='menuFoot'>Router: <span id='routerState'>Not connected</span><br>Signal Scout v3.3.0<br>🇬🇧 Pro Locks UK</div>
+</div>
 
 <div id='router' class='router'>
 <h2>Router Controls</h2>
@@ -384,17 +391,19 @@ function closeAll(){document.getElementById('drawer').classList.remove('open');d
 function saveRouter(){SignalScout.setRouter(document.getElementById('url').value,document.getElementById('pass').value)}
 function setStatus(s){document.getElementById('status').innerText=s}
 function setRaw(r){document.getElementById('raw').innerText=r}
-function setRouterChip(s){}
+function setRouterState(s){document.getElementById('routerState').innerText=s}
 function updateLive(d){
- setStatus('● '+d.status+'   Best '+d.best);
+ setStatus('● '+d.status);
  setRaw(d.raw);
- document.getElementById('ovQuality').innerText=d.quality;
  document.getElementById('quality').innerText=d.quality;
+ document.getElementById('sigQual').innerText=d.quality;
+ document.getElementById('qualityWord').innerText=qualityWord(d.quality);
  document.getElementById('rsrp').innerText=numOnly(d.rsrp);
  document.getElementById('sinr').innerText=numOnly(d.sinr);
  document.getElementById('rsrq').innerText=numOnly(d.rsrq);
  document.getElementById('rssi').innerText=numOnly(d.rssi);
  document.getElementById('band').innerText=d.band;
+ document.getElementById('bandFreq').innerText=bandFreq(d.band);
  document.getElementById('pci').innerText=d.pci;
  document.getElementById('earfcn').innerText=d.earfcn;
  document.getElementById('enodeb').innerText=d.enodeb;
@@ -402,6 +411,8 @@ function updateLive(d){
  document.getElementById('updated').innerText='Updated now';
 }
 function numOnly(v){return (v||'--').replace('dBm','').replace('dB','').trim()}
+function qualityWord(q){q=parseInt(q);if(isNaN(q))return'Waiting';if(q>=90)return'Excellent';if(q>=70)return'Good';if(q>=40)return'Needs Improvement';return'Poor'}
+function bandFreq(b){if(!b||b==='--')return'--';if(b.includes('20'))return'1800 + 800 MHz';if(b.includes('3'))return'1800 MHz';if(b.includes('7'))return'2600 MHz';if(b.includes('1'))return'2100 MHz';return'LTE band'}
 </script>
 </body>
 </html>
