@@ -1,5 +1,6 @@
 package uk.prolocks.signalscout;
 
+import android.view.WindowManager;
 import android.app.Activity;
 import android.os.*;
 import android.webkit.*;
