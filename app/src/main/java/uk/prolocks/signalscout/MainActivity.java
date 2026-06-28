@@ -2,8 +2,8 @@ package uk.prolocks.signalscout;
 
 import android.app.Activity;
 import android.os.*;
-import android.annotation.SuppressLint;
 import android.webkit.*;
+import android.annotation.SuppressLint;
 import android.media.*;
 import android.content.*;
 import android.util.Base64;
@@ -40,6 +40,7 @@ public class MainActivity extends Activity {
         super.onCreate(b);
         getWindow().addFlags(android.view.WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         trustAllHttps();
+
         tone = new ToneGenerator(AudioManager.STREAM_MUSIC, 80);
         vibrator = (Vibrator)getSystemService(Context.VIBRATOR_SERVICE);
 
@@ -47,9 +48,11 @@ public class MainActivity extends Activity {
         WebSettings s = web.getSettings();
         s.setJavaScriptEnabled(true);
         s.setDomStorageEnabled(true);
+        s.setAllowFileAccess(true);
+        s.setAllowContentAccess(true);
         web.addJavascriptInterface(new Bridge(), "SignalScout");
         setContentView(web);
-        web.loadDataWithBaseURL(null, html(), "text/html", "UTF-8", null);
+        web.loadDataWithBaseURL("file:///android_res/drawable/", html(), "text/html", "UTF-8", null);
     }
 
     public class Bridge {
@@ -62,7 +65,7 @@ public class MainActivity extends Activity {
         @JavascriptInterface public void startLive() {
             running = true;
             bestSinr = -999;
-            js("setStatus('Running live signal finder...');");
+            js("setStatus('Running live signal finder...');closePanel();");
             handler.removeCallbacks(poller);
             handler.post(poller);
         }
@@ -89,6 +92,7 @@ public class MainActivity extends Activity {
                 String sesTok = httpGet("/api/webserver/SesTokInfo");
                 sessionCookie = pick(sesTok, "SesInfo");
                 requestToken = pick(sesTok, "TokInfo");
+
                 debug += "SesTokInfo OK\\nToken length: " + requestToken.length() + "\\nCookie length: " + sessionCookie.length() + "\\n\\n";
 
                 String pass1 = b64HexSha256(routerPass);
@@ -98,6 +102,7 @@ public class MainActivity extends Activity {
                 HttpResult res = httpPost("/api/user/login", body, requestToken);
                 String newTok = headerToken(res);
                 if (newTok.length() > 0) requestToken = newTok;
+
                 debug += "LOGIN TRY b64hex/type4\\nHTTP " + res.code + "\\n" + res.body + "\\n";
 
                 boolean ok = debug.contains("<response>OK</response>");
@@ -271,82 +276,122 @@ public class MainActivity extends Activity {
 <head>
 <meta name='viewport' content='width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no'>
 <style>
-:root{--bg:#03101d;--card:#071d31;--card2:#092842;--blue:#00b4ff;--green:#62ff48;--yellow:#d7ff4f;--amber:#ffbd38;--red:#ff5252;--muted:#91a7ba}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-body{margin:0;background:#020a13;color:white;font-family:Arial,Helvetica,sans-serif;overflow:hidden}
-#app{height:100vh;display:flex;flex-direction:column;background:radial-gradient(circle at top,#0a2d4b 0,#03101d 42%,#020812 100%)}
-#content{flex:1;overflow:auto;padding:12px 12px 86px}
-.screen{display:none}.screen.active{display:block}
-.top{height:44px;display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
-.menu,.dots{font-size:30px;color:white;opacity:.9}.pageTitle{font-size:20px;font-weight:800}
-.hero{background:linear-gradient(140deg,#071c31,#0b2f4e);border:1px solid rgba(0,180,255,.24);border-radius:20px;padding:14px;margin-bottom:12px;box-shadow:0 0 26px rgba(0,180,255,.14);display:flex;gap:12px;align-items:center;min-height:170px;overflow:hidden;position:relative}
-.bot{width:118px;height:142px;border-radius:22px;background:radial-gradient(circle at 50% 28%,#ffffff 0,#e4e8ec 28%,#707982 29%,#151b22 55%,#0a0d12 100%);position:relative;flex-shrink:0;box-shadow:0 8px 24px rgba(0,0,0,.45)}
-.face{position:absolute;top:32px;left:19px;width:80px;height:42px;background:#06101b;border-radius:18px;border:2px solid #536373;box-shadow:inset 0 0 20px #001}
-.eye{position:absolute;top:13px;width:15px;height:15px;border:4px solid #00d6ff;border-bottom:none;border-radius:18px 18px 0 0}.eye.l{left:18px}.eye.r{right:18px}
-.vest{position:absolute;top:78px;left:25px;width:68px;height:58px;background:linear-gradient(90deg,#b8ff00,#efff00,#a8ff00);border-radius:8px 8px 14px 14px;border:2px solid #374}
-.barsMini{position:absolute;right:9px;bottom:13px;display:flex;gap:3px;align-items:flex-end}.barsMini i{width:5px;background:#0af;border-radius:3px}.barsMini i:nth-child(1){height:10px}.barsMini i:nth-child(2){height:18px}.barsMini i:nth-child(3){height:28px}
-.heroText{flex:1}.heroText .small{font-size:13px;color:var(--muted)}.heroText .big{font-size:46px;color:var(--green);font-weight:900;line-height:1}.heroText .word{font-size:20px;color:var(--green);font-weight:800}.gauge{position:absolute;right:-50px;top:12px;width:160px;height:160px;border-radius:50%;border:14px solid rgba(98,255,72,.9);border-left-color:transparent;border-bottom-color:transparent;opacity:.85}
-.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.card{background:rgba(7,29,49,.92);border:1px solid rgba(0,180,255,.23);border-radius:18px;padding:15px;box-shadow:inset 0 0 18px rgba(0,180,255,.05)}
-.metric h3{margin:0;color:white;font-size:18px}.metric .val{font-size:36px;color:var(--green);font-weight:900;margin:10px 0 2px}.metric .sub{font-size:14px;color:var(--green)}.metric svg{width:100%;height:38px;margin-top:8px}.line{fill:none;stroke:var(--green);stroke-width:3}.area{fill:rgba(98,255,72,.18)}
-.connect{display:flex;gap:14px;align-items:center;margin-top:12px}.towerIcon{width:72px;height:72px;border-radius:16px;background:#0d253d;display:flex;align-items:center;justify-content:center;font-size:42px}.connect .band{font-size:26px}.badge{margin-left:auto;background:#163d25;color:var(--green);font-size:12px;border-radius:12px;padding:5px 8px}
-.controls{margin-top:12px}.controls h2{margin:0 0 8px;text-align:center}.controls input{width:100%;background:#061a2b;border:1px solid rgba(0,180,255,.25);border-radius:12px;color:#fff;padding:13px;margin:5px 0;font-size:16px;outline:none}.btn{border:none;border-radius:14px;background:linear-gradient(135deg,#0084e8,#00b4ff);color:#fff;font-weight:800;padding:13px;font-size:15px;box-shadow:0 7px 18px rgba(0,140,255,.25);width:100%;margin:6px 0}.row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}.darkBtn{background:#27465f}.status{text-align:center;color:#c5d8e8;font-size:14px;margin:8px}.raw{font-family:monospace;color:#8ea4b5;font-size:11px;white-space:pre-wrap;max-height:140px;overflow:auto}
-.scanPanel .progress{height:10px;background:#17354f;border-radius:30px;overflow:hidden;margin:12px 0}.scanPanel .bar{height:100%;width:75%;background:linear-gradient(90deg,var(--green),var(--blue))}.bandRow{display:flex;align-items:center;gap:10px;margin:10px 0}.bandRow span:first-child{width:42px}.bandBar{flex:1;height:9px;background:#17354f;border-radius:20px;overflow:hidden}.bandFill{height:100%;background:var(--blue);border-radius:20px}.tick{color:var(--green);font-weight:900}
-.compass{width:280px;height:280px;margin:20px auto;border-radius:50%;border:2px solid rgba(255,255,255,.2);background:radial-gradient(circle,#0a2035,#06131f);position:relative;display:flex;align-items:center;justify-content:center;color:var(--green);font-size:74px;font-weight:900}.compass:before{content:'N';position:absolute;top:18px;font-size:24px;color:white}.compass:after{content:'23° NE';position:absolute;bottom:45px;font-size:36px;color:var(--green)}
-.reportItem{display:flex;align-items:center;gap:14px}.docIcon{font-size:44px;color:var(--blue)}
-.nav{height:66px;background:rgba(2,10,19,.97);display:grid;grid-template-columns:repeat(5,1fr);border-top:1px solid rgba(0,180,255,.14);position:fixed;bottom:0;left:0;right:0}.nav button{background:none;border:none;color:#7d91a7;font-size:12px}.nav button.active{color:var(--blue);font-weight:800}.nav span{display:block;font-size:23px;margin-bottom:1px}
+body{margin:0;background:#020b15;color:white;font-family:Arial,Helvetica,sans-serif;overflow:hidden}
+#app{height:100vh;display:flex;flex-direction:column;background:#020b15}
+#content{flex:1;overflow:hidden;position:relative}
+.screen{display:none;position:absolute;inset:0;background:#020b15}.screen.active{display:block}
+.bg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:top center}
+.tap{position:absolute;left:13%;right:13%;bottom:8.5%;height:7%;border-radius:24px;border:none;background:linear-gradient(135deg,#008cff,#00b4ff);color:white;font-size:20px;font-weight:800;box-shadow:0 7px 24px rgba(0,140,255,.5)}
+.hot{position:absolute;background:rgba(0,0,0,.02)}
+#dash .overlay{position:absolute;inset:0}
+.mask{position:absolute;background:#071d31;border-radius:8px}
+.val{position:absolute;color:#62ff48;font-weight:900;text-shadow:0 0 12px rgba(98,255,72,.25);line-height:1}
+.statusText{position:absolute;color:#d4e9ff;font-size:13px}
+#q{left:47%;top:15.3%;font-size:52px}
+#qWord{left:48%;top:24.5%;font-size:27px;color:#62ff48}
+#rsrp{left:8%;top:41.2%;font-size:36px}
+#sinr{left:58%;top:41.2%;font-size:36px}
+#rsrq{left:8%;top:63.3%;font-size:36px}
+#rssi{left:58%;top:63.3%;font-size:36px}
+#band{left:34%;top:83.6%;font-size:29px;color:white}
+#freq{left:34%;top:88.1%;font-size:17px;color:white;font-weight:400}
+#smallStatus{left:8%;top:96%;right:8%;font-size:13px;text-align:center;color:#a8c6df}
+#ctrlBtn{position:absolute;right:5%;top:4.5%;width:15%;height:8%;border:none;background:rgba(0,0,0,.02);color:transparent}
+.panel{position:absolute;left:0;right:0;bottom:-100%;background:#071d31;border-radius:26px 26px 0 0;border:1px solid rgba(0,180,255,.4);padding:20px;transition:.25s;z-index:20;box-shadow:0 -10px 35px rgba(0,0,0,.65)}
+.panel.open{bottom:0}
+.panel h2{text-align:center;margin:0 0 14px}
+.panel input{width:100%;background:#061a2b;border:1px solid rgba(0,180,255,.3);border-radius:12px;color:#fff;padding:14px;margin:6px 0;font-size:16px;outline:none}
+.btn{width:100%;border:none;border-radius:14px;background:linear-gradient(135deg,#0084e8,#00b4ff);color:#fff;font-weight:800;padding:14px;margin:6px 0;font-size:15px}
+.row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}.dark{background:#284762}
+.raw{font-family:monospace;color:#8ea4b5;font-size:11px;white-space:pre-wrap;max-height:120px;overflow:auto;margin-top:8px}
+.nav{height:66px;background:rgba(2,10,19,.96);display:grid;grid-template-columns:repeat(5,1fr);border-top:1px solid rgba(0,180,255,.12);z-index:30}
+.nav button{background:none;border:none;color:#7d91a7;font-size:12px}.nav button.active{color:#00b4ff;font-weight:800}.nav span{display:block;font-size:23px;margin-bottom:1px}
 </style>
 </head>
 <body>
-<div id='app'><div id='content'>
+<div id='app'>
+<div id='content'>
 
 <section id='home' class='screen active'>
-<div class='top'><div></div><div class='pageTitle'>Signal Scout</div><div></div></div>
-<div class='hero' style='min-height:520px;display:block;text-align:center;padding-top:25px'>
-<div style='font-size:44px;font-weight:900;text-align:left;line-height:1;margin-left:10px'><span style='color:white'>Signal</span><br><span style='color:#00b4ff'>Scout</span></div>
-<div style='font-size:16px;color:white;text-align:left;margin:18px 0 0 10px'>Professional LTE & 5G<br>Installation Assistant</div>
-<div class='bot' style='width:220px;height:270px;margin:40px auto 0'><div class='face' style='width:150px;height:78px;left:35px;top:50px'><div class='eye l' style='left:36px;top:24px'></div><div class='eye r' style='right:36px;top:24px'></div></div><div class='vest' style='top:150px;left:50px;width:120px;height:95px'></div></div>
-<button class='btn' onclick='show("live")' style='position:absolute;left:35px;right:35px;bottom:22px;width:auto'>Tap to Begin ›</button>
-</div>
-<div class='card'><h3>What are you trying to achieve today?</h3><p>🛰️ New Antenna Installation<br>📶 Improve Existing Installation<br>🚀 Find the Fastest Connection<br>🔍 Diagnose Poor Signal<br>⚙️ Advanced / Professional Mode</p></div>
+<img class='bg' src='screen_home.png'>
+<button class='tap' onclick='show("dash")'>Tap to Begin ›</button>
 </section>
 
-<section id='live' class='screen'>
-<div class='top'><div class='menu'>≡</div><div class='pageTitle'>Dashboard</div><div class='dots'>⋮</div></div>
-<div class='hero'>
-<div class='bot'><div class='face'><div class='eye l'></div><div class='eye r'></div></div><div class='vest'><div class='barsMini'><i></i><i></i><i></i></div></div></div>
-<div class='heroText'><div class='small'>Overall Quality</div><div id='qHero' class='big'>--<span style='font-size:23px'>/100</span></div><div id='qWord' class='word'>Waiting</div><div class='small'>📍 Location: NG12 3NH</div></div><div class='gauge'></div>
+<section id='dash' class='screen'>
+<img class='bg' src='screen_dashboard.png'>
+<div class='overlay'>
+<div class='mask' style='left:45%;top:14%;width:25%;height:9%'></div>
+<div id='q' class='val'>--<span style='font-size:23px'>/100</span></div>
+<div class='mask' style='left:46%;top:24%;width:38%;height:6%'></div>
+<div id='qWord' class='val'>Waiting</div>
+
+<div class='mask' style='left:7%;top:40%;width:31%;height:7%'></div>
+<div id='rsrp' class='val'>--</div>
+<div class='mask' style='left:57%;top:40%;width:31%;height:7%'></div>
+<div id='sinr' class='val'>--</div>
+<div class='mask' style='left:7%;top:62%;width:31%;height:7%'></div>
+<div id='rsrq' class='val'>--</div>
+<div class='mask' style='left:57%;top:62%;width:31%;height:7%'></div>
+<div id='rssi' class='val'>--</div>
+
+<div class='mask' style='left:33%;top:83%;width:31%;height:9%'></div>
+<div id='band' class='val'>--</div>
+<div id='freq' class='val'>--</div>
+<div id='smallStatus' class='statusText'>Not logged in</div>
+<button id='ctrlBtn' onclick='openPanel()'>controls</button>
 </div>
-<div class='grid'>
-<div class='card metric'><h3>RSRP</h3><div id='rsrp' class='val'>--</div><svg viewBox='0 0 160 40'><path class='area' d='M0 38 L0 30 C25 22 35 32 52 24 S82 18 100 24 S130 14 160 18 L160 38 Z'/><path class='line' d='M0 30 C25 22 35 32 52 24 S82 18 100 24 S130 14 160 18'/></svg><div class='sub'>Excellent</div></div>
-<div class='card metric'><h3>SINR</h3><div id='sinr' class='val'>--</div><svg viewBox='0 0 160 40'><path class='area' d='M0 38 L0 32 C30 32 48 29 70 26 S105 8 160 16 L160 38 Z'/><path class='line' d='M0 32 C30 32 48 29 70 26 S105 8 160 16'/></svg><div class='sub'>Excellent</div></div>
-<div class='card metric'><h3>RSRQ</h3><div id='rsrq' class='val'>--</div><svg viewBox='0 0 160 40'><path class='area' d='M0 38 L0 24 C24 29 43 20 66 25 S103 26 160 20 L160 38 Z'/><path class='line' d='M0 24 C24 29 43 20 66 25 S103 26 160 20'/></svg><div class='sub' style='color:#ffd84e'>Good</div></div>
-<div class='card metric'><h3>RSSI</h3><div id='rssi' class='val'>--</div><svg viewBox='0 0 160 40'><path class='area' d='M0 38 L0 28 C24 23 50 27 76 18 S121 24 160 12 L160 38 Z'/><path class='line' d='M0 28 C24 23 50 27 76 18 S121 24 160 12'/></svg><div class='sub'>Excellent</div></div>
-</div>
-<div class='card connect'><div class='towerIcon'>♜</div><div><div style='color:#b8d8ef'>Connected to</div><div id='band' class='band'>--</div><div id='freq' style='color:#d9e8f5'>--</div></div><div class='badge'>4G+</div></div>
-<div class='controls card'><h2>Router Controls</h2><input id='url' value='https://hirouter.net'><input id='pass' type='password' placeholder='Router admin password'><button class='btn' onclick='saveRouter();SignalScout.login()'>Login to Router</button><div class='row'><button class='btn darkBtn' onclick='saveRouter();SignalScout.startLive()'>Start</button><button class='btn darkBtn' onclick='SignalScout.stopLive()'>Stop</button><button class='btn darkBtn' onclick='resetBest()'>Reset</button></div><button class='btn' onclick='saveRouter();SignalScout.testRead()'>Test Read Once</button><div id='status' class='status'>Not logged in</div></div>
-<div class='card'><h3>Connected Cell</h3><p id='cellinfo'>PCI: --<br>EARFCN: --<br>Cell ID: --<br>eNodeB: --</p></div>
-<div class='card'><h3>Raw Reply</h3><div id='raw' class='raw'>Raw reply will show here.</div></div>
 </section>
 
-<section id='scan' class='screen'><div class='top'><div>‹</div><div class='pageTitle'>Scan Bands</div><div></div></div><div class='hero'><div class='bot'><div class='face'><div class='eye l'></div><div class='eye r'></div></div><div class='vest'></div></div><div class='heroText'><div class='card'>Scanning available bands...<br><br>This may take a few seconds.</div></div></div><div class='card scanPanel'><h3>Progress <span style='float:right'>75%</span></h3><div class='progress'><div class='bar'></div></div><div class='bandRow'><span>B1</span><span>2100 MHz</span><div class='bandBar'><div class='bandFill' style='width:35%'></div></div><span>-95 dBm</span></div><div class='bandRow'><span>B3</span><span>1800 MHz</span><div class='bandBar'><div class='bandFill' style='width:85%;background:var(--green)'></div></div><span>-78 dBm</span><span class='tick'>✓</span></div><div class='bandRow'><span>B7</span><span>2600 MHz</span><div class='bandBar'><div class='bandFill' style='width:30%'></div></div><span>-98 dBm</span></div><div class='bandRow'><span>B20</span><span>800 MHz</span><div class='bandBar'><div class='bandFill' style='width:70%;background:var(--green)'></div></div><span>-82 dBm</span><span class='tick'>✓</span></div></div><button class='btn' onclick='alert("Smart Scan coming soon")'>Start Smart Scan</button></section>
+<section id='scan' class='screen'><img class='bg' src='screen_scan.png'></section>
+<section id='tower' class='screen'><img class='bg' src='screen_tower.png'></section>
+<section id='reports' class='screen'><img class='bg' src='screen_reports.png'></section>
 
-<section id='tower' class='screen'><div class='top'><div>‹</div><div class='pageTitle'>Tower Direction</div><div>⋮</div></div><div class='hero'><div class='bot'><div class='face'><div class='eye l'></div><div class='eye r'></div></div><div class='vest'></div></div><div class='heroText'><div class='card'>Turn this way for a <span style='color:var(--green)'>stronger</span> signal!</div></div></div><div class='compass'>↑</div><div class='card'><h3>Best Signal This Direction</h3><p style='font-size:34px;color:var(--green);font-weight:900'>-72 dBm</p></div></section>
+<div id='panel' class='panel'>
+<h2>Router Controls</h2>
+<input id='url' value='https://hirouter.net'>
+<input id='pass' type='password' placeholder='Router admin password'>
+<button class='btn' onclick='saveRouter();SignalScout.login()'>Login to Router</button>
+<div class='row'><button class='btn dark' onclick='saveRouter();SignalScout.startLive()'>Start</button><button class='btn dark' onclick='SignalScout.stopLive()'>Stop</button><button class='btn dark' onclick='resetBest()'>Reset</button></div>
+<button class='btn' onclick='saveRouter();SignalScout.testRead()'>Test Read Once</button>
+<button class='btn dark' onclick='closePanel()'>Close</button>
+<div id='raw' class='raw'>Raw reply will show here.</div>
+</div>
 
-<section id='reports' class='screen'><div class='top'><div>‹</div><div class='pageTitle'>Reports</div><div></div></div><div class='hero'><div class='bot'><div class='face'><div class='eye l'></div><div class='eye r'></div></div><div class='vest'></div></div><div class='heroText'><div class='card'>Your report is ready!<br><span style='color:var(--green)'>Great work.</span></div></div></div><div class='card reportItem'><div class='docIcon'>▣</div><div><h3>Site Survey</h3><p>12 Jun 2026 - 10:30<br>NG12 3NH<br><span style='color:var(--green)'>Excellent</span></p></div></div><button class='btn'>View Report</button><button class='btn'>Export PDF</button><button class='btn'>Share</button></section>
-
-<section id='more' class='screen'><div class='top'><div></div><div class='pageTitle'>Scout</div><div></div></div><div class='hero'><div class='bot'><div class='face'><div class='eye l'></div><div class='eye r'></div></div><div class='vest'></div></div><div class='heroText'><div style='font-size:26px;font-weight:900'>SCOUT</div><div class='small'>Your friendly signal expert, here to help you find the best connection.</div></div></div><div class='grid'><div class='metric card'><div class='val'>90-100</div><div class='sub'>Excellent</div></div><div class='metric card'><div class='val' style='color:#d7ff4f'>70-89</div><div class='sub'>Good</div></div><div class='metric card'><div class='val' style='color:#ffbd38'>40-69</div><div class='sub'>Needs Improvement</div></div><div class='metric card'><div class='val' style='color:#ff5252'>0-39</div><div class='sub'>Poor</div></div></div></section>
-
-</div><nav class='nav'><button id='nav-home' class='active' onclick='show("home")'><span>⌂</span>Home</button><button id='nav-live' onclick='show("live")'><span>📶</span>Live</button><button id='nav-scan' onclick='show("scan")'><span>🔍</span>Scan</button><button id='nav-tower' onclick='show("tower")'><span>🧭</span>Tower</button><button id='nav-reports' onclick='show("reports")'><span>📄</span>Reports</button></nav></div>
+</div>
+<nav class='nav'>
+<button id='nav-home' class='active' onclick='show("home")'><span>⌂</span>Home</button>
+<button id='nav-dash' onclick='show("dash")'><span>📶</span>Live</button>
+<button id='nav-scan' onclick='show("scan")'><span>🔍</span>Scan</button>
+<button id='nav-tower' onclick='show("tower")'><span>🧭</span>Tower</button>
+<button id='nav-reports' onclick='show("reports")'><span>📄</span>Reports</button>
+</nav>
+</div>
 <script>
-function show(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active');document.querySelectorAll('.nav button').forEach(b=>b.classList.remove('active'));let n=document.getElementById('nav-'+id);if(n)n.classList.add('active');document.getElementById('content').scrollTop=0}
+function show(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active');document.querySelectorAll('.nav button').forEach(b=>b.classList.remove('active'));let n=document.getElementById('nav-'+id);if(n)n.classList.add('active');closePanel()}
+function openPanel(){document.getElementById('panel').classList.add('open')}
+function closePanel(){document.getElementById('panel').classList.remove('open')}
 function saveRouter(){SignalScout.setRouter(document.getElementById('url').value,document.getElementById('pass').value)}
-function setStatus(s){document.getElementById('status').innerText=s}
+function setStatus(s){document.getElementById('smallStatus').innerText=s}
 function setRaw(r){document.getElementById('raw').innerText=r}
-function resetBest(){document.getElementById('status').innerText='Best reset'}
-function updateLive(d){setStatus(d.status);document.getElementById('qHero').innerHTML=d.quality+'<span style="font-size:23px">/100</span>';document.getElementById('qWord').innerText=qualityWord(d.quality);document.getElementById('sinr').innerText=d.sinr;document.getElementById('rsrp').innerText=d.rsrp;document.getElementById('rsrq').innerText=d.rsrq;document.getElementById('rssi').innerText=d.rssi;document.getElementById('band').innerText=d.band;document.getElementById('freq').innerText=d.band.includes('20')?'800 MHz':'Current LTE band';document.getElementById('cellinfo').innerHTML='PCI: '+d.pci+'<br>EARFCN: '+d.earfcn+'<br>Cell ID: '+d.cell+'<br>eNodeB: '+d.enodeb;setRaw(d.raw)}
+function resetBest(){setStatus('Best reset')}
+function updateLive(d){
+ setStatus(d.status+'  Best '+d.best);
+ document.getElementById('q').innerHTML=d.quality+'<span style="font-size:23px">/100</span>';
+ document.getElementById('qWord').innerText=qualityWord(d.quality);
+ document.getElementById('sinr').innerText=d.sinr;
+ document.getElementById('rsrp').innerText=d.rsrp;
+ document.getElementById('rsrq').innerText=d.rsrq;
+ document.getElementById('rssi').innerText=d.rssi;
+ document.getElementById('band').innerText=d.band;
+ document.getElementById('freq').innerText=bandFreq(d.band);
+ setRaw(d.raw);
+}
 function qualityWord(q){q=parseInt(q);if(isNaN(q))return'Waiting';if(q>=90)return'Excellent';if(q>=70)return'Good';if(q>=40)return'Needs Improvement';return'Poor'}
+function bandFreq(b){if(!b||b==='--')return'--';if(b.includes('20'))return'800 MHz';if(b.includes('3'))return'1800 MHz';if(b.includes('7'))return'2600 MHz';if(b.includes('1'))return'2100 MHz';return'Current LTE band'}
 </script>
-</body></html>
+</body>
+</html>
 """;
     }
 }
