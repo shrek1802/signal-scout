@@ -609,9 +609,12 @@ function setGuide(arrow, title, sub, state){
 }
 
 function openInstallerMode(){
-  document.getElementById('installerOverlay').classList.add('active');
-  try{document.documentElement.requestFullscreen();}catch(e){}
-  try{screen.orientation.lock('landscape');}catch(e){}
+  localStorage.setItem('signalScoutPage','scan');
+  localStorage.setItem('signalScoutInstaller','0');
+  let sinr = document.getElementById('optSinr') ? document.getElementById('optSinr').innerText : '--';
+  let best = document.getElementById('optBest') ? document.getElementById('optBest').innerText : '--';
+  let status = document.getElementById('optDirection') ? document.getElementById('optDirection').innerText : 'HOLD POSITION';
+  try{ SignalScout.openInstallerActivity(sinr, best, status); }catch(e){}
 }
 
 function closeInstallerMode(){
