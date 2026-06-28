@@ -386,6 +386,27 @@ body{margin:0;background:#000;color:white;font-family:Arial,Helvetica,sans-serif
 .name{font-size:17px;color:white;font-weight:800}.valLine{height:55px;display:flex;align-items:baseline;justify-content:center;white-space:nowrap}.val{font-size:45px;color:var(--green);font-weight:900;line-height:1;min-width:72px;text-align:center}.unit{font-size:17px;color:white;margin-left:4px}.pill{color:var(--green);font-size:13px;background:rgba(105,255,75,.12);border-radius:9px;padding:7px;text-align:center;min-height:29px}
 .cell{background:var(--card);border:1px solid var(--stroke);border-radius:18px;padding:14px;margin-top:12px}.cell h3{margin:0 0 12px;color:var(--green);font-size:17px}.cellGrid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}.cellGrid div{font-size:11px;color:#c7d6da;text-align:center}.cellGrid b{display:block;color:white;font-size:14px;margin-top:4px;min-height:18px}
 .statusBar{background:rgba(3,14,22,.95);border:1px solid var(--stroke);border-radius:14px;min-height:42px;padding:10px 12px;font-size:12px;display:flex;justify-content:space-between;align-items:center;margin-top:12px;margin-bottom:18px}
+
+.optimiserWrap{position:absolute;inset:0;overflow:auto;padding:18px 14px 16px}
+.optimiserHero{margin-top:32px;background:linear-gradient(160deg,rgba(3,14,22,.94),rgba(4,20,30,.92));border:1px solid var(--stroke);border-radius:24px;box-shadow:0 0 34px rgba(0,0,0,.5);padding:18px;text-align:center}
+.optimiserHero h1{margin:0 0 6px;font-size:24px}.optimiserHero p{margin:0;color:#c7d6da;font-size:14px}
+.bigSinrBox{margin-top:14px;background:rgba(0,0,0,.25);border:1px solid rgba(105,255,75,.18);border-radius:22px;padding:18px;text-align:center}
+.bigSinrBox .label{font-size:16px;color:#c7d6da}.bigSinrBox .num{font-size:72px;font-weight:900;color:var(--green);line-height:1;margin-top:6px;font-variant-numeric:tabular-nums}.bigSinrBox .hint{font-size:20px;color:var(--green);font-weight:900;margin-top:8px}
+.guideCard{background:var(--card);border:1px solid var(--stroke);border-radius:18px;margin-top:12px;padding:16px;text-align:center}.guideArrows{font-size:70px;line-height:1;color:var(--green);text-shadow:0 0 20px rgba(105,255,75,.35)}.guideText{font-size:32px;font-weight:900;margin-top:8px}.guideSub{font-size:14px;color:#c7d6da;margin-top:6px}
+.optimiserGrid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px}.miniCard{background:var(--card);border:1px solid var(--stroke);border-radius:16px;padding:13px;text-align:center}.miniCard .miniName{font-size:13px;color:#c7d6da}.miniCard .miniVal{font-size:28px;color:var(--green);font-weight:900;margin-top:7px;font-variant-numeric:tabular-nums}
+.installerBtn{width:100%;height:58px;border:none;border-radius:18px;background:linear-gradient(135deg,#22b14c,#69ff4b);color:white;font-size:19px;font-weight:900;margin-top:14px;box-shadow:0 0 25px rgba(105,255,75,.25)}
+.installerOverlay{position:absolute;inset:0;background:#020912;z-index:40;display:none;overflow:hidden}.installerOverlay.active{display:block}.installerBg{position:absolute;inset:0;background:radial-gradient(circle at 50% 20%,rgba(105,255,75,.16),transparent 35%),linear-gradient(120deg,#020912,#061b27,#020912)}
+.installerContent{position:absolute;inset:0;display:grid;grid-template-columns:1fr 1.15fr 1fr;align-items:center;padding:24px;color:white;text-align:center}
+.instArrow{font-size:130px;font-weight:900;color:rgba(105,255,75,.22);line-height:1}.instArrow.active{color:var(--green);text-shadow:0 0 38px rgba(105,255,75,.55)}.instArrow.red{color:#ff4a3d;text-shadow:0 0 38px rgba(255,74,61,.55)}
+.instMain .instTitle{font-size:48px;font-weight:900;line-height:1.02}.instMain .instSinr{font-size:86px;font-weight:900;color:var(--green);margin-top:10px;font-variant-numeric:tabular-nums}.instMain .instUnit{font-size:27px}.instMain .instState{font-size:28px;font-weight:900;color:var(--green);margin-top:10px}.instMain .instSmall{font-size:18px;color:#c7d6da;margin-top:10px}
+.instTop{position:absolute;left:18px;right:18px;top:14px;display:flex;justify-content:space-between;align-items:center;font-size:15px;color:#c7d6da}.exitInst{border:none;border-radius:12px;background:rgba(255,255,255,.12);color:white;padding:10px 14px;font-weight:800}
+@media (orientation:portrait){
+ .installerContent{grid-template-columns:1fr;grid-template-rows:1fr 1.4fr 1fr;padding:18px}
+ .instArrow{font-size:96px}
+ .instMain .instTitle{font-size:42px}
+ .instMain .instSinr{font-size:78px}
+}
+
 .drawer{position:absolute;top:0;bottom:0;left:-82%;width:82%;z-index:10;transition:.25s;background:#020910;box-shadow:18px 0 40px rgba(0,0,0,.6);padding:26px 18px}.drawer.open{left:0}.drawer h1{color:var(--green);margin:20px 0 2px;font-size:32px}.drawer h2{margin:0 0 18px;font-size:18px}.menuItem{height:48px;border-radius:12px;display:flex;align-items:center;gap:14px;padding:0 12px;font-size:16px}.menuItem.active{background:rgba(105,255,75,.18);color:var(--green)}.menuFoot{position:absolute;bottom:24px;left:18px;right:18px;color:#a8bac1;font-size:13px}
 .scrim{position:absolute;inset:0;background:rgba(0,0,0,.55);z-index:9;display:none}.scrim.open{display:block}
 .router{position:absolute;left:0;right:0;bottom:-100%;background:#071d28;border-radius:24px 24px 0 0;border:1px solid rgba(101,255,73,.28);padding:18px;z-index:20;transition:.25s;max-height:92vh;overflow:auto}.router.open{bottom:0}.router h2{text-align:center;margin:0 0 12px}.router input{width:100%;background:#06131d;border:1px solid rgba(101,255,73,.24);border-radius:12px;padding:13px;color:white;margin:6px 0;font-size:16px}.btn{width:100%;height:46px;border:none;border-radius:12px;background:linear-gradient(135deg,#0a84ff,#00b8ff);color:white;font-weight:800;font-size:15px;margin-top:8px}.btn.dark{background:#1c3440}.row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}.raw{font-family:monospace;color:#a7b9bf;font-size:10px;white-space:pre-wrap;max-height:180px;overflow:auto;margin-top:8px}.log{font-family:monospace;color:#d7f4df;font-size:11px;white-space:pre-wrap;max-height:145px;overflow:auto;background:#03111a;border-radius:10px;padding:8px;margin-top:8px}
@@ -441,14 +462,45 @@ body{margin:0;background:#000;color:white;font-family:Arial,Helvetica,sans-serif
 </div>
 </section>
 
-<section id='scan' class='screen'><div class='placeholder'><h1>Smart Band Scanner</h1><p>Next screen to build.</p></div></section>
+<section id='scan' class='screen'>
+<img class='bg' src='dashboard_bg.png'>
+<button id='menuBtn' onclick='openMenu()'>☰</button>
+<button id='routerBtn' onclick='openRouter()'>⋮</button>
+<div class='optimiserWrap'>
+  <div class='title'>Signal Optimiser</div>
+  <div class='optimiserHero'>
+    <h1>Find the best signal</h1>
+    <p>Turn the antenna slowly. Scout will tell you when the signal improves or if you pass the best point.</p>
+    <button class='installerBtn' onclick='openInstallerMode()'>🛠 INSTALLER MODE</button>
+  </div>
+
+  <div class='bigSinrBox'>
+    <div class='label'>Live SINR</div>
+    <div><span id='optSinr' class='num'>--</span><span style='font-size:26px;color:white'> dB</span></div>
+    <div id='optHint' class='hint'>Waiting for live data</div>
+  </div>
+
+  <div class='guideCard'>
+    <div id='optArrow' class='guideArrows'>↔</div>
+    <div id='optDirection' class='guideText'>HOLD POSITION</div>
+    <div id='optSub' class='guideSub'>Start live reading, then move antenna slowly left and right.</div>
+  </div>
+
+  <div class='optimiserGrid'>
+    <div class='miniCard'><div class='miniName'>Current RSRP</div><div id='optRsrp' class='miniVal'>--</div></div>
+    <div class='miniCard'><div class='miniName'>Current RSRQ</div><div id='optRsrq' class='miniVal'>--</div></div>
+    <div class='miniCard'><div class='miniName'>Best SINR</div><div id='optBest' class='miniVal'>--</div></div>
+    <div class='miniCard'><div class='miniName'>Band</div><div id='optBand' class='miniVal'>--</div></div>
+  </div>
+</div>
+</section>
 <section id='tower' class='screen'><div class='placeholder'><h1>Tower Finder</h1><p>Next screen to build.</p></div></section>
 <section id='reports' class='screen'><div class='placeholder'><h1>Reports</h1><p>Next screen to build.</p></div></section>
 
 <div id='drawer' class='drawer'>
   <h1>Scout</h1><h2>Signal Scout</h2>
   <div class='menuItem active' onclick='show("dashboard")'>🏠 Dashboard</div>
-  <div class='menuItem' onclick='show("scan")'>📡 Smart Band Scanner</div>
+  <div class='menuItem' onclick='show("scan")'>📶 Signal Optimiser</div>
   <div class='menuItem' onclick='show("scan")'>🔒 Best Band Lock</div>
   <div class='menuItem' onclick='show("tower")'>🧭 Tower Finder</div>
   <div class='menuItem' onclick='show("scan")'>📈 Live Graphs</div>
@@ -456,6 +508,25 @@ body{margin:0;background:#000;color:white;font-family:Arial,Helvetica,sans-serif
   <div class='menuItem' onclick='openRouter()'>⚙ Router Setup</div>
   <div class='menuItem'>ℹ About</div>
   <div class='menuFoot'>Router: <span id='routerState'>Not connected</span><br>Signal Scout v3.5.5<br>🇬🇧 Pro Locks UK</div>
+</div>
+
+
+<div id='installerOverlay' class='installerOverlay'>
+  <div class='installerBg'></div>
+  <div class='instTop'>
+    <div>Signal Optimiser • Installer Mode</div>
+    <button class='exitInst' onclick='closeInstallerMode()'>EXIT</button>
+  </div>
+  <div class='installerContent'>
+    <div id='instLeft' class='instArrow'>⬅</div>
+    <div class='instMain'>
+      <div id='instTitle' class='instTitle'>HOLD POSITION</div>
+      <div><span id='instSinr' class='instSinr'>--</span><span class='instUnit'> dB</span></div>
+      <div id='instState' class='instState'>WAITING</div>
+      <div id='instSmall' class='instSmall'>Move the antenna slowly. Best: <span id='instBest'>--</span></div>
+    </div>
+    <div id='instRight' class='instArrow'>➡</div>
+  </div>
 </div>
 
 <div id='router' class='router'>
@@ -477,6 +548,78 @@ body{margin:0;background:#000;color:white;font-family:Arial,Helvetica,sans-serif
 
 </div>
 <script>
+
+let optLastSinr = null;
+let optBestSinr = null;
+let optTrend = 'hold';
+let optSamples = [];
+
+function setOptimiserDirection(sinr){
+  let n = parseFloat(sinr);
+  if(isNaN(n)){
+    optTrend='hold';
+    setGuide('↔','HOLD POSITION','Waiting for live SINR data.','WAITING');
+    return;
+  }
+
+  optSamples.push(n);
+  if(optSamples.length > 8) optSamples.shift();
+
+  if(optBestSinr === null || n > optBestSinr){
+    optBestSinr = n;
+    optTrend = 'better';
+    setGuide('✅','KEEP GOING','Signal improving - new best found.','IMPROVING');
+    return;
+  }
+
+  if(optLastSinr !== null){
+    let diff = n - optLastSinr;
+    let dropFromBest = optBestSinr - n;
+
+    if(dropFromBest <= 0.4){
+      optTrend = 'stop';
+      setGuide('✅','STOP','You are very close to the best signal found.','BEST');
+    } else if(diff < -0.7 && dropFromBest > 1.0){
+      optTrend = 'back';
+      setGuide('↩','GO BACK','You passed the best point - move back slightly.','GO BACK');
+    } else if(diff > 0.4){
+      optTrend = 'better';
+      setGuide('⬆','KEEP GOING','Signal is improving.','IMPROVING');
+    } else {
+      optTrend = 'hold';
+      setGuide('↔','HOLD POSITION','Small change only - move slowly.','CHECKING');
+    }
+  }
+  optLastSinr = n;
+}
+
+function setGuide(arrow, title, sub, state){
+  let a=document.getElementById('optArrow'); if(a)a.innerText=arrow;
+  let d=document.getElementById('optDirection'); if(d)d.innerText=title;
+  let s=document.getElementById('optSub'); if(s)s.innerText=sub;
+  let it=document.getElementById('instTitle'); if(it)it.innerText=title;
+  let is=document.getElementById('instState'); if(is)is.innerText=state;
+  let l=document.getElementById('instLeft'), r=document.getElementById('instRight');
+  if(l&&r){
+    l.className='instArrow'; r.className='instArrow';
+    if(title.includes('GO BACK')){l.className='instArrow active';}
+    else if(title.includes('KEEP')){r.className='instArrow active';}
+    else if(title.includes('STOP')){l.className='instArrow active'; r.className='instArrow active';}
+  }
+}
+
+function openInstallerMode(){
+  document.getElementById('installerOverlay').classList.add('active');
+  try{document.documentElement.requestFullscreen();}catch(e){}
+  try{screen.orientation.lock('landscape');}catch(e){}
+}
+
+function closeInstallerMode(){
+  document.getElementById('installerOverlay').classList.remove('active');
+  try{screen.orientation.unlock();}catch(e){}
+  try{document.exitFullscreen();}catch(e){}
+}
+
 function show(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active');closeAll()}
 function openMenu(){document.getElementById('drawer').classList.add('open');document.getElementById('scrim').classList.add('open')}
 function openRouter(){document.getElementById('router').classList.add('open');document.getElementById('scrim').classList.add('open')}
@@ -509,6 +652,15 @@ function updateLive(d){
  document.getElementById('sinrTxt').innerText=sinrWord(d.sinr);
  document.getElementById('rsrqTxt').innerText=rsrqWord(d.rsrq);
  document.getElementById('rssiTxt').innerText='Live';
+
+ let os=document.getElementById('optSinr'); if(os)os.innerText=numOnly(d.sinr);
+ let orp=document.getElementById('optRsrp'); if(orp)orp.innerText=numOnly(d.rsrp);
+ let orq=document.getElementById('optRsrq'); if(orq)orq.innerText=numOnly(d.rsrq);
+ let ob=document.getElementById('optBest'); if(ob)ob.innerText=d.best;
+ let oband=document.getElementById('optBand'); if(oband)oband.innerText=d.band;
+ let inst=document.getElementById('instSinr'); if(inst)inst.innerText=numOnly(d.sinr);
+ let ib=document.getElementById('instBest'); if(ib)ib.innerText=d.best;
+ setOptimiserDirection(d.sinr);
 }
 function numOnly(v){return (v||'--').replace('dBm','').replace('dB','').trim()}
 function qualityWord(q){q=parseInt(q);if(isNaN(q))return'Waiting';if(q>=90)return'Excellent';if(q>=70)return'Good';if(q>=40)return'Needs Improvement';return'Poor'}
