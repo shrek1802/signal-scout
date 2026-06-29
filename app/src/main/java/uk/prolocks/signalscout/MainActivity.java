@@ -424,6 +424,24 @@ body{margin:0;background:#000;color:white;font-family:Arial,Helvetica,sans-serif
  .instMain .instSinr{font-size:78px}
 }
 
+
+.pageWrap{position:absolute;inset:0;overflow:auto;padding:18px 14px 16px}
+.pageHero{margin-top:32px;background:linear-gradient(160deg,rgba(3,14,22,.94),rgba(4,20,30,.92));border:1px solid var(--stroke);border-radius:24px;box-shadow:0 0 34px rgba(0,0,0,.5);padding:18px;text-align:center}
+.pageHero h1{margin:0 0 8px;font-size:24px}.pageHero p{margin:0;color:#c7d6da;font-size:14px;line-height:1.35}
+.fullCard{background:linear-gradient(180deg,rgba(3,14,22,.93),rgba(5,22,31,.91));border:1px solid var(--stroke);border-radius:18px;margin-top:12px;padding:16px;box-shadow:0 0 22px rgba(0,0,0,.35)}
+.fullCard h2{margin:0 0 12px;color:white;font-size:19px}.muted{color:#c7d6da}.green{color:var(--green)}.yellow{color:var(--yellow)}
+.bigCenter{font-size:54px;font-weight:900;color:var(--green);text-align:center;line-height:1;font-variant-numeric:tabular-nums}
+.compass{width:230px;height:230px;margin:12px auto;border-radius:50%;border:2px solid rgba(105,255,75,.25);background:radial-gradient(circle,rgba(105,255,75,.10),rgba(0,0,0,.25));position:relative;box-shadow:inset 0 0 28px rgba(105,255,75,.08)}
+.compass:before{content:'N';position:absolute;top:10px;left:0;right:0;text-align:center;color:white;font-weight:900}.compass:after{content:'S';position:absolute;bottom:10px;left:0;right:0;text-align:center;color:white;font-weight:900}.needle{position:absolute;left:50%;top:50%;width:16px;height:92px;margin-left:-8px;margin-top:-80px;background:var(--green);border-radius:10px;transform-origin:50% 80px;box-shadow:0 0 20px rgba(105,255,75,.5)}
+.bearing{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;flex-direction:column}.bearing .deg{font-size:42px;color:var(--green);font-weight:900}.bearing .dir{font-size:18px;color:white}
+.actionBtn{width:100%;height:52px;border:none;border-radius:16px;background:linear-gradient(135deg,#0a84ff,#00b8ff);color:white;font-size:17px;font-weight:900;margin-top:10px}.actionBtn.greenBtn{background:linear-gradient(135deg,#22b14c,#69ff4b)}.actionBtn.darkBtn{background:#1c3440}
+.graphBox{height:170px;border-radius:16px;background:rgba(0,0,0,.25);border:1px solid rgba(105,255,75,.16);position:relative;overflow:hidden;margin-top:10px}
+.graphLine{position:absolute;left:8%;right:8%;bottom:40%;height:42%;background:linear-gradient(180deg,rgba(105,255,75,.35),rgba(105,255,75,.02));clip-path:polygon(0 80%,10% 55%,20% 65%,32% 42%,46% 50%,58% 22%,72% 38%,86% 18%,100% 28%,100% 100%,0 100%)}
+.graphStroke{position:absolute;left:8%;right:8%;bottom:40%;height:42%;border-top:4px solid var(--green);transform:skewY(-5deg);opacity:.8}
+.tabRow{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:12px}.tab{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.08);border-radius:12px;padding:10px 4px;text-align:center;color:#c7d6da;font-size:13px}.tab.active{background:rgba(105,255,75,.14);border-color:rgba(105,255,75,.34);color:var(--green)}
+.reportItem{display:flex;align-items:center;gap:12px;background:rgba(0,0,0,.18);border-radius:14px;padding:12px;margin-top:10px}.reportIcon{font-size:30px;width:42px;text-align:center}.reportTitle{font-size:16px;font-weight:900}.reportSub{font-size:12px;color:#c7d6da;margin-top:3px}.chev{margin-left:auto;color:#c7d6da;font-size:24px}
+.settingsGrid{display:grid;grid-template-columns:1fr;gap:10px;margin-top:12px}.settingRow{display:flex;justify-content:space-between;align-items:center;background:rgba(0,0,0,.18);border-radius:14px;padding:13px}.settingName{font-size:15px;font-weight:800}.settingSub{font-size:12px;color:#c7d6da;margin-top:2px}.toggle{width:52px;height:28px;border-radius:20px;background:rgba(105,255,75,.25);position:relative}.toggle:after{content:'';position:absolute;width:22px;height:22px;border-radius:50%;background:var(--green);right:3px;top:3px}
+
 .drawer{position:absolute;top:0;bottom:0;left:-82%;width:82%;z-index:10;transition:.25s;background:#020910;box-shadow:18px 0 40px rgba(0,0,0,.6);padding:26px 18px}.drawer.open{left:0}.drawer h1{color:var(--green);margin:20px 0 2px;font-size:32px}.drawer h2{margin:0 0 18px;font-size:18px}.menuItem{height:48px;border-radius:12px;display:flex;align-items:center;gap:14px;padding:0 12px;font-size:16px}.menuItem.active{background:rgba(105,255,75,.18);color:var(--green)}.menuFoot{position:absolute;bottom:24px;left:18px;right:18px;color:#a8bac1;font-size:13px}
 .scrim{position:absolute;inset:0;background:rgba(0,0,0,.55);z-index:9;display:none}.scrim.open{display:block}
 .router{position:absolute;left:0;right:0;bottom:-100%;background:#071d28;border-radius:24px 24px 0 0;border:1px solid rgba(101,255,73,.28);padding:18px;z-index:20;transition:.25s;max-height:92vh;overflow:auto}.router.open{bottom:0}.router h2{text-align:center;margin:0 0 12px}.router input{width:100%;background:#06131d;border:1px solid rgba(101,255,73,.24);border-radius:12px;padding:13px;color:white;margin:6px 0;font-size:16px}.btn{width:100%;height:46px;border:none;border-radius:12px;background:linear-gradient(135deg,#0a84ff,#00b8ff);color:white;font-weight:800;font-size:15px;margin-top:8px}.btn.dark{background:#1c3440}.row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}.raw{font-family:monospace;color:#a7b9bf;font-size:10px;white-space:pre-wrap;max-height:180px;overflow:auto;margin-top:8px}.log{font-family:monospace;color:#d7f4df;font-size:11px;white-space:pre-wrap;max-height:145px;overflow:auto;background:#03111a;border-radius:10px;padding:8px;margin-top:8px}
@@ -511,39 +529,140 @@ body{margin:0;background:#000;color:white;font-family:Arial,Helvetica,sans-serif
   </div>
 </div>
 </section>
-<section id='tower' class='screen'><div class='placeholder'><h1>Tower Finder</h1><p>Next screen to build.</p></div></section>
-<section id='reports' class='screen'><div class='placeholder'><h1>Reports</h1><p>Next screen to build.</p></div></section>
+<section id='tower' class='screen'>
+<img class='bg' src='dashboard_bg.png'>
+<button id='menuBtn' onclick='openMenu()'>☰</button>
+<button id='routerBtn' onclick='openRouter()'>⋮</button>
+<div class='pageWrap'>
+  <div class='title'>Tower Finder</div>
+  <div class='pageHero'>
+    <h1>Find your best mast</h1>
+    <p>Use bearing, tower direction and live signal readings to point the antenna towards the strongest cell.</p>
+  </div>
+  <div class='fullCard'>
+    <h2>Current Direction</h2>
+    <div class='compass'>
+      <div class='needle'></div>
+      <div class='bearing'><div class='deg'>--°</div><div class='dir'>Waiting</div></div>
+    </div>
+    <div class='muted' style='text-align:center'>Tower bearing will appear when GPS/tower data is available.</div>
+  </div>
+  <div class='grid'>
+    <div class='card'><div class='name'>Best SINR</div><div class='valLine'><span id='towerBest' class='val'>--</span><span class='unit'>dB</span></div><div class='pill'>Peak found</div></div>
+    <div class='card'><div class='name'>Cell ID</div><div class='valLine'><span id='towerCell' class='val' style='font-size:30px'>--</span></div><div class='pill'>Current cell</div></div>
+  </div>
+  <div class='fullCard'>
+    <h2>Scout Advice</h2>
+    <div class='muted'>Start live readings, then slowly rotate the antenna. Signal Scout will compare the current SINR to the best SINR found.</div>
+    <button class='actionBtn greenBtn' onclick='show("scan")'>Open Signal Optimiser</button>
+  </div>
+</div>
+</section>
+<section id='reports' class='screen'>
+<img class='bg' src='dashboard_bg.png'>
+<button id='menuBtn' onclick='openMenu()'>☰</button>
+<button id='routerBtn' onclick='openRouter()'>⋮</button>
+<div class='pageWrap'>
+  <div class='title'>Reports</div>
+  <div class='pageHero'>
+    <h1>Customer-ready surveys</h1>
+    <p>Create neat install reports with router details, signal readings, bands, notes and photos.</p>
+  </div>
+  <div class='fullCard'>
+    <h2>New Report</h2>
+    <div class='reportItem'><div class='reportIcon'>📡</div><div><div class='reportTitle'>Site Survey</div><div class='reportSub'>Signal readings, band, cell and installer notes</div></div><div class='chev'>›</div></div>
+    <div class='reportItem'><div class='reportIcon'>📷</div><div><div class='reportTitle'>Add Site Photos</div><div class='reportSub'>Before, after, antenna position and router location</div></div><div class='chev'>›</div></div>
+    <div class='reportItem'><div class='reportIcon'>📄</div><div><div class='reportTitle'>Export PDF</div><div class='reportSub'>Pro Locks UK branded customer report</div></div><div class='chev'>›</div></div>
+    <button class='actionBtn'>Create Report</button>
+  </div>
+  <div class='fullCard'>
+    <h2>Latest Survey</h2>
+    <div class='muted'>No saved survey yet. Once live readings are working, this page will store before/after results.</div>
+  </div>
+</div>
+</section>
+
+
+<section id='graphs' class='screen'>
+<img class='bg' src='dashboard_bg.png'>
+<button id='menuBtn' onclick='openMenu()'>☰</button>
+<button id='routerBtn' onclick='openRouter()'>⋮</button>
+<div class='pageWrap'>
+  <div class='title'>Live Graphs</div>
+  <div class='pageHero'>
+    <h1>Signal history</h1>
+    <p>Watch SINR, RSRP, RSRQ and RSSI over time while moving the antenna.</p>
+  </div>
+  <div class='tabRow'><div class='tab active'>SINR</div><div class='tab'>RSRP</div><div class='tab'>RSRQ</div><div class='tab'>RSSI</div></div>
+  <div class='fullCard'>
+    <h2>Last 60 seconds</h2>
+    <div class='bigCenter'><span id='graphLive'>--</span><span style='font-size:22px;color:white'> dB</span></div>
+    <div class='graphBox'><div class='graphLine'></div><div class='graphStroke'></div></div>
+    <div class='optimiserGrid'>
+      <div class='miniCard'><div class='miniName'>Min</div><div class='miniVal'>--</div></div>
+      <div class='miniCard'><div class='miniName'>Avg</div><div class='miniVal'>--</div></div>
+      <div class='miniCard'><div class='miniName'>Max</div><div class='miniVal'>--</div></div>
+      <div class='miniCard'><div class='miniName'>Best</div><div id='graphBest' class='miniVal'>--</div></div>
+    </div>
+  </div>
+</div>
+</section>
+
+<section id='settings' class='screen'>
+<img class='bg' src='dashboard_bg.png'>
+<button id='menuBtn' onclick='openMenu()'>☰</button>
+<button id='routerBtn' onclick='openRouter()'>⋮</button>
+<div class='pageWrap'>
+  <div class='title'>Settings</div>
+  <div class='pageHero'>
+    <h1>Signal Scout setup</h1>
+    <p>App behaviour, installer tools, audio guidance and router preferences.</p>
+  </div>
+  <div class='fullCard'>
+    <h2>Installer Options</h2>
+    <div class='settingsGrid'>
+      <div class='settingRow'><div><div class='settingName'>Beep on improvement</div><div class='settingSub'>Tone gets faster as SINR improves</div></div><div class='toggle'></div></div>
+      <div class='settingRow'><div><div class='settingName'>Vibrate on new best</div><div class='settingSub'>Short vibration when a peak is found</div></div><div class='toggle'></div></div>
+      <div class='settingRow'><div><div class='settingName'>Keep screen awake</div><div class='settingSub'>Useful when aligning antennas</div></div><div class='toggle'></div></div>
+    </div>
+  </div>
+  <div class='fullCard'>
+    <h2>Router Driver</h2>
+    <div class='muted'>Current: Huawei HiLink. TP-Link MR600 driver will be added after Huawei testing.</div>
+  </div>
+</div>
+</section>
+
+<section id='about' class='screen'>
+<img class='bg' src='dashboard_bg.png'>
+<button id='menuBtn' onclick='openMenu()'>☰</button>
+<button id='routerBtn' onclick='openRouter()'>⋮</button>
+<div class='pageWrap'>
+  <div class='title'>About</div>
+  <div class='pageHero'>
+    <h1>Signal Scout</h1>
+    <p>Professional LTE & 5G installation assistant.</p>
+  </div>
+  <div class='fullCard' style='text-align:center'>
+    <div style='font-size:54px'>📶</div>
+    <h2>Signal Scout v3.7.0</h2>
+    <div class='muted'>Built for professional LTE and 5G installers.</div>
+    <div class='green' style='margin-top:16px;font-weight:900'>🇬🇧 Pro Locks UK</div>
+  </div>
+</div>
+</section>
 
 <div id='drawer' class='drawer'>
   <h1>Scout</h1><h2>Signal Scout</h2>
   <div class='menuItem active' onclick='show("dashboard")'>🏠 Dashboard</div>
   <div class='menuItem' onclick='show("scan")'>📶 Signal Optimiser</div>
-  <div class='menuItem' onclick='show("scan")'>🔒 Best Band Lock</div>
-  <div class='menuItem' onclick='show("tower")'>🧭 Tower Finder</div>
-  <div class='menuItem' onclick='show("scan")'>📈 Live Graphs</div>
+  <div class='menuItem' onclick='show("tower")'>🗼 Tower Finder</div>
+  <div class='menuItem' onclick='show("graphs")'>📈 Live Graphs</div>
   <div class='menuItem' onclick='show("reports")'>📄 Reports</div>
-  <div class='menuItem' onclick='openRouter()'>⚙ Router Setup</div>
-  <div class='menuItem'>ℹ About</div>
-  <div class='menuFoot'>Router: <span id='routerState'>Not connected</span><br>Signal Scout v3.5.5<br>🇬🇧 Pro Locks UK</div>
-</div>
-
-
-<div id='installerOverlay' class='installerOverlay'>
-  <div class='installerBg'></div>
-  <div class='instTop'>
-    <div>Signal Optimiser • Installer Mode</div>
-    <button class='exitInst' onclick='closeInstallerMode()'>EXIT</button>
-  </div>
-  <div class='installerContent'>
-    <div id='instLeft' class='instArrow'>⬅</div>
-    <div class='instMain'>
-      <div id='instTitle' class='instTitle'>HOLD POSITION</div>
-      <div><span id='instSinr' class='instSinr'>--</span><span class='instUnit'> dB</span></div>
-      <div id='instState' class='instState'>WAITING</div>
-      <div id='instSmall' class='instSmall'>Move the antenna slowly. Best: <span id='instBest'>--</span></div>
-    </div>
-    <div id='instRight' class='instArrow'>➡</div>
-  </div>
+  <div class='menuItem' onclick='openRouter()'>⚙ Router Manager</div>
+  <div class='menuItem' onclick='show("settings")'>🔧 Settings</div>
+  <div class='menuItem' onclick='show("about")'>ℹ About</div>
+  <div class='menuFoot'>Router: <span id='routerState'>Not connected</span><br>Signal Scout v3.7.0<br>🇬🇧 Pro Locks UK</div>
 </div>
 
 <div id='router' class='router'>
@@ -692,6 +811,10 @@ function updateLive(d){
  let oband=document.getElementById('optBand'); if(oband)oband.innerText=d.band;
  let inst=document.getElementById('instSinr'); if(inst)inst.innerText=numOnly(d.sinr);
  let ib=document.getElementById('instBest'); if(ib)ib.innerText=d.best;
+ let gl=document.getElementById('graphLive'); if(gl)gl.innerText=numOnly(d.sinr);
+ let gb=document.getElementById('graphBest'); if(gb)gb.innerText=d.best;
+ let tb=document.getElementById('towerBest'); if(tb)tb.innerText=numOnly(d.best);
+ let tc=document.getElementById('towerCell'); if(tc)tc.innerText=d.cell;
  setOptimiserDirection(d.sinr);
 }
 function numOnly(v){return (v||'--').replace('dBm','').replace('dB','').trim()}

@@ -1,18 +1,21 @@
-Signal Scout v3.6.4 Native Installer Only
+Signal Scout v3.7.0 Pages Pack
 
 Use:
 1. Rename this ZIP to upload.zip
 2. Upload to repo root
 3. Run Apply upload.zip Update
 4. Run Release Manager
-5. Version: 3.6.4
+5. Version: 3.7.0
 6. Channel: beta
 
 Changes:
-- Removes broken Installer overlay fallback
-- Installer Mode button now only opens native InstallerActivity
-- If native Activity fails, it shows an error instead of opening the old overlay
-- InstallerActivity is landscape-only
-- Exit button uses native Android finish()
-- Arrows replaced with equal-style native glyphs
-- Main app remains portrait
+- Keeps Home unchanged
+- Keeps Dashboard style
+- Keeps Signal Optimiser and native Installer Mode
+- Adds Tower Finder page
+- Adds Live Graphs page shell
+- Adds Reports page shell
+- Adds Settings page shell
+- Adds About page
+- Cleans side menu labels
+- Keeps Router Manager panel and router engine unchanged
