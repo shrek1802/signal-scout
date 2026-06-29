@@ -426,20 +426,21 @@ body{margin:0;background:#000;color:white;font-family:Arial,Helvetica,sans-serif
 
 
 .pageWrap{position:absolute;inset:0;overflow:auto;padding:18px 14px 16px}
-.pageHero{margin-top:32px;background:linear-gradient(160deg,rgba(3,14,22,.94),rgba(4,20,30,.92));border:1px solid var(--stroke);border-radius:24px;box-shadow:0 0 34px rgba(0,0,0,.5);padding:18px;text-align:center}
-.pageHero h1{margin:0 0 8px;font-size:24px}.pageHero p{margin:0;color:#c7d6da;font-size:14px;line-height:1.35}
+.pageHero{margin-top:30px;background:linear-gradient(160deg,rgba(3,14,22,.94),rgba(4,20,30,.92));border:1px solid var(--stroke);border-radius:22px;box-shadow:0 0 34px rgba(0,0,0,.5);padding:15px;text-align:center}
+.pageHero h1{margin:0 0 7px;font-size:22px}.pageHero p{margin:0;color:#c7d6da;font-size:13px;line-height:1.32}
 .fullCard{background:linear-gradient(180deg,rgba(3,14,22,.93),rgba(5,22,31,.91));border:1px solid var(--stroke);border-radius:18px;margin-top:12px;padding:16px;box-shadow:0 0 22px rgba(0,0,0,.35)}
 .fullCard h2{margin:0 0 12px;color:white;font-size:19px}.muted{color:#c7d6da}.green{color:var(--green)}.yellow{color:var(--yellow)}
 .bigCenter{font-size:54px;font-weight:900;color:var(--green);text-align:center;line-height:1;font-variant-numeric:tabular-nums}
-.compass{width:230px;height:230px;margin:12px auto;border-radius:50%;border:2px solid rgba(105,255,75,.25);background:radial-gradient(circle,rgba(105,255,75,.10),rgba(0,0,0,.25));position:relative;box-shadow:inset 0 0 28px rgba(105,255,75,.08)}
-.compass:before{content:'N';position:absolute;top:10px;left:0;right:0;text-align:center;color:white;font-weight:900}.compass:after{content:'S';position:absolute;bottom:10px;left:0;right:0;text-align:center;color:white;font-weight:900}.needle{position:absolute;left:50%;top:50%;width:16px;height:92px;margin-left:-8px;margin-top:-80px;background:var(--green);border-radius:10px;transform-origin:50% 80px;box-shadow:0 0 20px rgba(105,255,75,.5)}
+.compass{width:230px;height:230px;margin:12px auto;border-radius:50%;border:2px solid rgba(105,255,75,.25);background:radial-gradient(circle,rgba(105,255,75,.14),rgba(0,0,0,.25)),repeating-conic-gradient(from 0deg,rgba(105,255,75,.22) 0deg,rgba(105,255,75,.22) 1deg,transparent 1deg,transparent 15deg);position:relative;box-shadow:inset 0 0 28px rgba(105,255,75,.08),0 0 22px rgba(105,255,75,.10)}
+.compass:before{content:'N';position:absolute;top:10px;left:0;right:0;text-align:center;color:white;font-weight:900}.compass:after{content:'S';position:absolute;bottom:10px;left:0;right:0;text-align:center;color:white;font-weight:900}.needle{position:absolute;left:50%;top:50%;width:0;height:0;margin-left:-10px;margin-top:-88px;border-left:10px solid transparent;border-right:10px solid transparent;border-bottom:96px solid var(--green);transform-origin:50% 88px;filter:drop-shadow(0 0 14px rgba(105,255,75,.65))}
 .bearing{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;flex-direction:column}.bearing .deg{font-size:42px;color:var(--green);font-weight:900}.bearing .dir{font-size:18px;color:white}
 .actionBtn{width:100%;height:52px;border:none;border-radius:16px;background:linear-gradient(135deg,#0a84ff,#00b8ff);color:white;font-size:17px;font-weight:900;margin-top:10px}.actionBtn.greenBtn{background:linear-gradient(135deg,#22b14c,#69ff4b)}.actionBtn.darkBtn{background:#1c3440}
-.graphBox{height:170px;border-radius:16px;background:rgba(0,0,0,.25);border:1px solid rgba(105,255,75,.16);position:relative;overflow:hidden;margin-top:10px}
+.graphBox{height:170px;border-radius:16px;background:linear-gradient(rgba(255,255,255,.035) 1px, transparent 1px),linear-gradient(90deg,rgba(255,255,255,.035) 1px, transparent 1px),rgba(0,0,0,.25);background-size:100% 25%,25% 100%;border:1px solid rgba(105,255,75,.16);position:relative;overflow:hidden;margin-top:10px}
 .graphLine{position:absolute;left:8%;right:8%;bottom:40%;height:42%;background:linear-gradient(180deg,rgba(105,255,75,.35),rgba(105,255,75,.02));clip-path:polygon(0 80%,10% 55%,20% 65%,32% 42%,46% 50%,58% 22%,72% 38%,86% 18%,100% 28%,100% 100%,0 100%)}
 .graphStroke{position:absolute;left:8%;right:8%;bottom:40%;height:42%;border-top:4px solid var(--green);transform:skewY(-5deg);opacity:.8}
 .tabRow{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:12px}.tab{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.08);border-radius:12px;padding:10px 4px;text-align:center;color:#c7d6da;font-size:13px}.tab.active{background:rgba(105,255,75,.14);border-color:rgba(105,255,75,.34);color:var(--green)}
 .reportItem{display:flex;align-items:center;gap:12px;background:rgba(0,0,0,.18);border-radius:14px;padding:12px;margin-top:10px}.reportIcon{font-size:30px;width:42px;text-align:center}.reportTitle{font-size:16px;font-weight:900}.reportSub{font-size:12px;color:#c7d6da;margin-top:3px}.chev{margin-left:auto;color:#c7d6da;font-size:24px}
+.recentBadge{display:inline-block;padding:5px 9px;border-radius:999px;background:rgba(105,255,75,.14);color:var(--green);font-size:12px;font-weight:900;margin-top:8px}.divider{height:1px;background:rgba(255,255,255,.08);margin:12px 0}.smallStatGrid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:12px}.smallStat{background:rgba(0,0,0,.18);border-radius:12px;padding:10px;text-align:center}.smallStat b{display:block;color:var(--green);font-size:18px}.smallStat span{font-size:11px;color:#c7d6da}
 .settingsGrid{display:grid;grid-template-columns:1fr;gap:10px;margin-top:12px}.settingRow{display:flex;justify-content:space-between;align-items:center;background:rgba(0,0,0,.18);border-radius:14px;padding:13px}.settingName{font-size:15px;font-weight:800}.settingSub{font-size:12px;color:#c7d6da;margin-top:2px}.toggle{width:52px;height:28px;border-radius:20px;background:rgba(105,255,75,.25);position:relative}.toggle:after{content:'';position:absolute;width:22px;height:22px;border-radius:50%;background:var(--green);right:3px;top:3px}
 
 .drawer{position:absolute;top:0;bottom:0;left:-82%;width:82%;z-index:10;transition:.25s;background:#020910;box-shadow:18px 0 40px rgba(0,0,0,.6);padding:26px 18px}.drawer.open{left:0}.drawer h1{color:var(--green);margin:20px 0 2px;font-size:32px}.drawer h2{margin:0 0 18px;font-size:18px}.menuItem{height:48px;border-radius:12px;display:flex;align-items:center;gap:14px;padding:0 12px;font-size:16px}.menuItem.active{background:rgba(105,255,75,.18);color:var(--green)}.menuFoot{position:absolute;bottom:24px;left:18px;right:18px;color:#a8bac1;font-size:13px}
@@ -543,9 +544,9 @@ body{margin:0;background:#000;color:white;font-family:Arial,Helvetica,sans-serif
     <h2>Current Direction</h2>
     <div class='compass'>
       <div class='needle'></div>
-      <div class='bearing'><div class='deg'>--°</div><div class='dir'>Waiting</div></div>
+      <div class='bearing'><div class='deg'>--°</div><div class='dir'>Waiting</div><div class='recentBadge'>No tower lock</div></div>
     </div>
-    <div class='muted' style='text-align:center'>Tower bearing will appear when GPS/tower data is available.</div>
+    <div class='muted' style='text-align:center'>Connect to the router first. Cell ID and GPS will help estimate the tower direction.</div>
   </div>
   <div class='grid'>
     <div class='card'><div class='name'>Best SINR</div><div class='valLine'><span id='towerBest' class='val'>--</span><span class='unit'>dB</span></div><div class='pill'>Peak found</div></div>
@@ -554,6 +555,11 @@ body{margin:0;background:#000;color:white;font-family:Arial,Helvetica,sans-serif
   <div class='fullCard'>
     <h2>Scout Advice</h2>
     <div class='muted'>Start live readings, then slowly rotate the antenna. Signal Scout will compare the current SINR to the best SINR found.</div>
+    <div class='smallStatGrid'>
+      <div class='smallStat'><b>--</b><span>Network</span></div>
+      <div class='smallStat'><b>-- km</b><span>Distance</span></div>
+      <div class='smallStat'><b>--</b><span>Band</span></div>
+    </div>
     <button class='actionBtn greenBtn' onclick='show("scan")'>Open Signal Optimiser</button>
   </div>
 </div>
@@ -576,8 +582,10 @@ body{margin:0;background:#000;color:white;font-family:Arial,Helvetica,sans-serif
     <button class='actionBtn'>Create Report</button>
   </div>
   <div class='fullCard'>
-    <h2>Latest Survey</h2>
-    <div class='muted'>No saved survey yet. Once live readings are working, this page will store before/after results.</div>
+    <h2>Recent Reports</h2>
+    <div class='muted'>No saved survey yet. Once live readings are working, saved customer reports will appear here.</div>
+    <div class='divider'></div>
+    <div class='reportItem'><div class='reportIcon'>🟢</div><div><div class='reportTitle'>Example layout</div><div class='reportSub'>Customer • Router • Signal score • PDF</div></div><div class='chev'>›</div></div>
   </div>
 </div>
 </section>
@@ -594,8 +602,9 @@ body{margin:0;background:#000;color:white;font-family:Arial,Helvetica,sans-serif
     <p>Watch SINR, RSRP, RSRQ and RSSI over time while moving the antenna.</p>
   </div>
   <div class='tabRow'><div class='tab active'>SINR</div><div class='tab'>RSRP</div><div class='tab'>RSRQ</div><div class='tab'>RSSI</div></div>
+  <div class='tabRow' style='grid-template-columns:repeat(3,1fr)'><div class='tab active'>60 sec</div><div class='tab'>5 min</div><div class='tab'>30 min</div></div>
   <div class='fullCard'>
-    <h2>Last 60 seconds</h2>
+    <h2>Live Trend</h2>
     <div class='bigCenter'><span id='graphLive'>--</span><span style='font-size:22px;color:white'> dB</span></div>
     <div class='graphBox'><div class='graphLine'></div><div class='graphStroke'></div></div>
     <div class='optimiserGrid'>
@@ -629,6 +638,7 @@ body{margin:0;background:#000;color:white;font-family:Arial,Helvetica,sans-serif
   <div class='fullCard'>
     <h2>Router Driver</h2>
     <div class='muted'>Current: Huawei HiLink. TP-Link MR600 driver will be added after Huawei testing.</div>
+    <button class='actionBtn darkBtn' onclick='openRouter()'>Open Router Manager</button>
   </div>
 </div>
 </section>
@@ -645,8 +655,13 @@ body{margin:0;background:#000;color:white;font-family:Arial,Helvetica,sans-serif
   </div>
   <div class='fullCard' style='text-align:center'>
     <div style='font-size:54px'>📶</div>
-    <h2>Signal Scout v3.7.0</h2>
+    <h2>Signal Scout v3.7.1</h2>
     <div class='muted'>Built for professional LTE and 5G installers.</div>
+    <div class='smallStatGrid'>
+      <div class='smallStat'><b>LTE</b><span>Signal</span></div>
+      <div class='smallStat'><b>5G</b><span>Ready</span></div>
+      <div class='smallStat'><b>PDF</b><span>Reports</span></div>
+    </div>
     <div class='green' style='margin-top:16px;font-weight:900'>🇬🇧 Pro Locks UK</div>
   </div>
 </div>
@@ -662,7 +677,7 @@ body{margin:0;background:#000;color:white;font-family:Arial,Helvetica,sans-serif
   <div class='menuItem' onclick='openRouter()'>⚙ Router Manager</div>
   <div class='menuItem' onclick='show("settings")'>🔧 Settings</div>
   <div class='menuItem' onclick='show("about")'>ℹ About</div>
-  <div class='menuFoot'>Router: <span id='routerState'>Not connected</span><br>Signal Scout v3.7.0<br>🇬🇧 Pro Locks UK</div>
+  <div class='menuFoot'>Router: <span id='routerState'>Not connected</span><br>Signal Scout v3.7.1<br>🇬🇧 Pro Locks UK</div>
 </div>
 
 <div id='router' class='router'>
