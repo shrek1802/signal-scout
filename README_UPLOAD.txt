@@ -1,17 +1,16 @@
-Signal Scout v3.9.1 Version Fix
+Signal Scout v3.9.2 Version Compile Fix
 
 Use:
 1. Rename this ZIP to upload.zip
 2. Upload to repo root
 3. Run Apply upload.zip Update
 4. Run Release Manager
-5. Version: 3.9.1
+5. Version: 3.9.2
 6. Channel: beta
 
 Changes:
-- Gradle version updated to 3.9.1 / versionCode 3910
-- App exposes BuildConfig.VERSION_NAME to WebView
-- Menu/About versions now read from the actual Android build
-- About page shows build code
-- Prevents future mismatch like app showing v3.0.0 while release is v3.9.0
-- Keeps Band Optimiser and router logic unchanged
+- Fixes v3.9.1 build failure
+- Removes BuildConfig dependency from WebView bridge
+- Reads installed version using Android PackageManager instead
+- App version display remains synced with the installed APK
+- Keeps Auto Band + Combo Optimiser unchanged

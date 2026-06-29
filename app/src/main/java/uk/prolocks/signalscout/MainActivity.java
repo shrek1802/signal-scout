@@ -67,11 +67,22 @@ public class MainActivity extends Activity {
 
     public class Bridge {
         @JavascriptInterface public String getAppVersion() {
-            return BuildConfig.VERSION_NAME;
+            try {
+                return getPackageManager().getPackageInfo(getPackageName(), 0).versionName;
+            } catch(Exception e) {
+                return "3.9.2";
+            }
         }
 
         @JavascriptInterface public int getAppVersionCode() {
-            return BuildConfig.VERSION_CODE;
+            try {
+                if (android.os.Build.VERSION.SDK_INT >= 28) {
+                    return (int)getPackageManager().getPackageInfo(getPackageName(), 0).getLongVersionCode();
+                }
+                return getPackageManager().getPackageInfo(getPackageName(), 0).versionCode;
+            } catch(Exception e) {
+                return 3920;
+            }
         }
 
 
@@ -140,7 +151,7 @@ public class MainActivity extends Activity {
     void detectAndLogin() {
         new Thread(() -> {
             js("clearLog(); setStatus('Detecting router...');");
-            log("Signal Scout Router Engine v3.9.1");
+            log("Signal Scout Router Engine v3.9.2");
             String manual = routerBase;
             ArrayList<String> bases = new ArrayList<>();
             if (manual != null && manual.length() > 0 && !manual.equalsIgnoreCase("AUTO")) bases.add(manual);
@@ -1019,8 +1030,8 @@ body{margin:0;background:#000;color:white;font-family:Arial,Helvetica,sans-serif
   </div>
   <div class='fullCard' style='text-align:center'>
     <div style='font-size:54px'>📶</div>
-    <h2 id='aboutVersion'>Signal Scout v3.9.1</h2>
-    <div class='muted'>Built for professional LTE and 5G installers.</div><div class='recentBadge' id='aboutBuildCode'>Build 3910</div>
+    <h2 id='aboutVersion'>Signal Scout v3.9.2</h2>
+    <div class='muted'>Built for professional LTE and 5G installers.</div><div class='recentBadge' id='aboutBuildCode'>Build 3920</div>
     <div class='smallStatGrid'>
       <div class='smallStat'><b>LTE</b><span>Signal</span></div>
       <div class='smallStat'><b>5G</b><span>Ready</span></div>
@@ -1042,7 +1053,7 @@ body{margin:0;background:#000;color:white;font-family:Arial,Helvetica,sans-serif
   <div class='menuItem' onclick='openRouter()'>⚙ Router Manager</div>
   <div class='menuItem' onclick='show("settings")'>🔧 Settings</div>
   <div class='menuItem' onclick='show("about")'>ℹ About</div>
-  <div class='menuFoot'>Router: <span id='routerState'>Not connected</span><br><span id='menuVersion'>Signal Scout v3.9.1</span><br>🇬🇧 Pro Locks UK</div>
+  <div class='menuFoot'>Router: <span id='routerState'>Not connected</span><br><span id='menuVersion'>Signal Scout v3.9.2</span><br>🇬🇧 Pro Locks UK</div>
 </div>
 
 <div id='router' class='router'>
