@@ -70,7 +70,7 @@ public class MainActivity extends Activity {
             try {
                 return getPackageManager().getPackageInfo(getPackageName(), 0).versionName;
             } catch(Exception e) {
-                return "3.8.2";
+                return "3.8.3";
             }
         }
 
@@ -81,7 +81,7 @@ public class MainActivity extends Activity {
                 }
                 return getPackageManager().getPackageInfo(getPackageName(), 0).versionCode;
             } catch(Exception e) {
-                return 3820;
+                return 3830;
             }
         }
 
@@ -143,7 +143,7 @@ public class MainActivity extends Activity {
     void detectAndLogin() {
         new Thread(() -> {
             js("clearLog(); setStatus('Detecting router...');");
-            log("Signal Scout Router Engine v3.8.2");
+            log("Signal Scout Router Engine v3.8.3");
             String manual = routerBase;
             ArrayList<String> bases = new ArrayList<>();
             if (manual != null && manual.length() > 0 && !manual.equalsIgnoreCase("AUTO")) bases.add(manual);
@@ -872,7 +872,7 @@ body{margin:0;background:#000;color:white;font-family:Arial,Helvetica,sans-serif
   </div>
   <div class='fullCard' style='text-align:center'>
     <div style='font-size:54px'>📶</div>
-    <h2>Signal Scout v3.8.2</h2>
+    <h2>Signal Scout v3.8.3</h2>
     <div class='muted'>Built for professional LTE and 5G installers.</div>
     <div class='smallStatGrid'>
       <div class='smallStat'><b>LTE</b><span>Signal</span></div>
@@ -895,7 +895,7 @@ body{margin:0;background:#000;color:white;font-family:Arial,Helvetica,sans-serif
   <div class='menuItem' onclick='openRouter()'>⚙ Router Manager</div>
   <div class='menuItem' onclick='show("settings")'>🔧 Settings</div>
   <div class='menuItem' onclick='show("about")'>ℹ About</div>
-  <div class='menuFoot'>Router: <span id='routerState'>Not connected</span><br>Signal Scout v3.8.2<br>🇬🇧 Pro Locks UK</div>
+  <div class='menuFoot'>Router: <span id='routerState'>Not connected</span><br>Signal Scout v3.8.3<br>🇬🇧 Pro Locks UK</div>
 </div>
 
 <div id='router' class='router'>
@@ -919,7 +919,13 @@ body{margin:0;background:#000;color:white;font-family:Arial,Helvetica,sans-serif
 <script>
 
 function appVersion(){
-  try{return SignalScout.getAppVersion();}catch(e){return '3.8.2';}
+  try{return SignalScout.getAppVersion();}catch(e){return '3.8.3';}
+}
+function replaceAllTextSafe(text, find, repl){
+  while(text.indexOf(find) !== -1){
+    text = text.split(find).join(repl);
+  }
+  return text;
 }
 function forceVersionLabels(){
   try{
@@ -928,11 +934,11 @@ function forceVersionLabels(){
     let walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT, null);
     let node;
     while(node = walker.nextNode()){
-      if(node.nodeValue && node.nodeValue.indexOf('Signal Scout v') !== -1){
-        node.nodeValue = node.nodeValue.replace(/Signal Scout v[0-9.]+/g, wanted);
-      }
-      if(node.nodeValue && node.nodeValue.indexOf('v3.0.0') !== -1){
-        node.nodeValue = node.nodeValue.replace(/v3\.0\.0/g, 'v' + v);
+      if(node.nodeValue){
+        node.nodeValue = replaceAllTextSafe(node.nodeValue, 'Signal Scout v3.0.0', wanted);
+        node.nodeValue = replaceAllTextSafe(node.nodeValue, 'Signal Scout v3.8.0', wanted);
+        node.nodeValue = replaceAllTextSafe(node.nodeValue, 'Signal Scout v3.8.1', wanted);
+        node.nodeValue = replaceAllTextSafe(node.nodeValue, 'Signal Scout v3.8.2', wanted);
       }
     }
     ['homeVersion','menuVersion','aboutVersion'].forEach(function(id){
@@ -1039,8 +1045,7 @@ function lockBand(b){
   SignalScout.lockHuaweiBand(String(b));
 }
 
-function show(id){
- forceVersionLabels();document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active');closeAll()}
+function show(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active');closeAll()}
 function openMenu(){document.getElementById('drawer').classList.add('open');document.getElementById('scrim').classList.add('open')}
 function openRouter(){document.getElementById('router').classList.add('open');document.getElementById('scrim').classList.add('open')}
 function closeAll(){document.getElementById('drawer').classList.remove('open');document.getElementById('router').classList.remove('open');document.getElementById('scrim').classList.remove('open')}
