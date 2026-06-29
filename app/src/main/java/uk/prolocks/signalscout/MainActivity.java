@@ -66,6 +66,15 @@ public class MainActivity extends Activity {
     }
 
     public class Bridge {
+        @JavascriptInterface public String getAppVersion() {
+            return BuildConfig.VERSION_NAME;
+        }
+
+        @JavascriptInterface public int getAppVersionCode() {
+            return BuildConfig.VERSION_CODE;
+        }
+
+
         @JavascriptInterface public void openInstallerActivity(String sinr, String best, String status) {
             runOnUiThread(() -> {
                 try {
@@ -131,7 +140,7 @@ public class MainActivity extends Activity {
     void detectAndLogin() {
         new Thread(() -> {
             js("clearLog(); setStatus('Detecting router...');");
-            log("Signal Scout Router Engine v3.5.5");
+            log("Signal Scout Router Engine v3.9.1");
             String manual = routerBase;
             ArrayList<String> bases = new ArrayList<>();
             if (manual != null && manual.length() > 0 && !manual.equalsIgnoreCase("AUTO")) bases.add(manual);
@@ -1010,8 +1019,8 @@ body{margin:0;background:#000;color:white;font-family:Arial,Helvetica,sans-serif
   </div>
   <div class='fullCard' style='text-align:center'>
     <div style='font-size:54px'>📶</div>
-    <h2>Signal Scout v3.9.0</h2>
-    <div class='muted'>Built for professional LTE and 5G installers.</div>
+    <h2 id='aboutVersion'>Signal Scout v3.9.1</h2>
+    <div class='muted'>Built for professional LTE and 5G installers.</div><div class='recentBadge' id='aboutBuildCode'>Build 3910</div>
     <div class='smallStatGrid'>
       <div class='smallStat'><b>LTE</b><span>Signal</span></div>
       <div class='smallStat'><b>5G</b><span>Ready</span></div>
@@ -1033,7 +1042,7 @@ body{margin:0;background:#000;color:white;font-family:Arial,Helvetica,sans-serif
   <div class='menuItem' onclick='openRouter()'>⚙ Router Manager</div>
   <div class='menuItem' onclick='show("settings")'>🔧 Settings</div>
   <div class='menuItem' onclick='show("about")'>ℹ About</div>
-  <div class='menuFoot'>Router: <span id='routerState'>Not connected</span><br>Signal Scout v3.9.0<br>🇬🇧 Pro Locks UK</div>
+  <div class='menuFoot'>Router: <span id='routerState'>Not connected</span><br><span id='menuVersion'>Signal Scout v3.9.1</span><br>🇬🇧 Pro Locks UK</div>
 </div>
 
 <div id='router' class='router'>
@@ -1166,6 +1175,20 @@ function setBestBandResult(label, score){
   });
 }
 function safe(s){return String(s).replace(/[<>&]/g,function(c){return {'<':'&lt;','>':'&gt;','&':'&amp;'}[c];});}
+
+
+function applyBuildVersion(){
+  try{
+    let v = SignalScout.getAppVersion();
+    let c = SignalScout.getAppVersionCode();
+    let mv = document.getElementById('menuVersion');
+    if(mv) mv.innerText = 'Signal Scout v' + v;
+    let av = document.getElementById('aboutVersion');
+    if(av) av.innerText = 'Signal Scout v' + v;
+    let bc = document.getElementById('aboutBuildCode');
+    if(bc) bc.innerText = 'Build ' + c;
+  }catch(e){}
+}
 
 function bandStatus(s){
   let el=document.getElementById('bandStatus');

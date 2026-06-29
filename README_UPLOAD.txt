@@ -1,25 +1,17 @@
-Signal Scout v3.9.0 Auto Band + Combo Optimiser
+Signal Scout v3.9.1 Version Fix
 
 Use:
 1. Rename this ZIP to upload.zip
 2. Upload to repo root
 3. Run Apply upload.zip Update
 4. Run Release Manager
-5. Version: 3.9.0
+5. Version: 3.9.1
 6. Channel: beta
 
 Changes:
-- Adds Auto Scan Single Bands
-- Adds Auto Scan Band Combos
-- Adds results table
-- Scores each result using Signal Scout quality score
-- Recommends best result
-- Keeps manual band lock buttons
-- Keeps unlock all bands / AUTO button
-- Keeps raw debug output for troubleshooting
-
-Important:
-- This sends Huawei HiLink band-lock commands.
-- Each test waits about 15 seconds for reconnect.
-- If a band loses signal, use AUTO / All LTE bands or reboot the router.
-- Combo support depends on router/firmware accepting LTEBand masks.
+- Gradle version updated to 3.9.1 / versionCode 3910
+- App exposes BuildConfig.VERSION_NAME to WebView
+- Menu/About versions now read from the actual Android build
+- About page shows build code
+- Prevents future mismatch like app showing v3.0.0 while release is v3.9.0
+- Keeps Band Optimiser and router logic unchanged
