@@ -70,7 +70,7 @@ public class MainActivity extends Activity {
             try {
                 return getPackageManager().getPackageInfo(getPackageName(), 0).versionName;
             } catch(Exception e) {
-                return "3.8.1";
+                return "3.8.2";
             }
         }
 
@@ -81,7 +81,7 @@ public class MainActivity extends Activity {
                 }
                 return getPackageManager().getPackageInfo(getPackageName(), 0).versionCode;
             } catch(Exception e) {
-                return 3810;
+                return 3820;
             }
         }
 
@@ -143,7 +143,7 @@ public class MainActivity extends Activity {
     void detectAndLogin() {
         new Thread(() -> {
             js("clearLog(); setStatus('Detecting router...');");
-            log("Signal Scout Router Engine v3.8.1");
+            log("Signal Scout Router Engine v3.8.2");
             String manual = routerBase;
             ArrayList<String> bases = new ArrayList<>();
             if (manual != null && manual.length() > 0 && !manual.equalsIgnoreCase("AUTO")) bases.add(manual);
@@ -872,7 +872,7 @@ body{margin:0;background:#000;color:white;font-family:Arial,Helvetica,sans-serif
   </div>
   <div class='fullCard' style='text-align:center'>
     <div style='font-size:54px'>📶</div>
-    <h2><span id='homeVersion'>Signal Scout v3.8.1</span></h2>
+    <h2>Signal Scout v3.8.2</h2>
     <div class='muted'>Built for professional LTE and 5G installers.</div>
     <div class='smallStatGrid'>
       <div class='smallStat'><b>LTE</b><span>Signal</span></div>
@@ -895,7 +895,7 @@ body{margin:0;background:#000;color:white;font-family:Arial,Helvetica,sans-serif
   <div class='menuItem' onclick='openRouter()'>⚙ Router Manager</div>
   <div class='menuItem' onclick='show("settings")'>🔧 Settings</div>
   <div class='menuItem' onclick='show("about")'>ℹ About</div>
-  <div class='menuFoot'>Router: <span id='routerState'>Not connected</span><br><span id='menuVersion'>Signal Scout v3.8.1</span><br>🇬🇧 Pro Locks UK</div>
+  <div class='menuFoot'>Router: <span id='routerState'>Not connected</span><br>Signal Scout v3.8.2<br>🇬🇧 Pro Locks UK</div>
 </div>
 
 <div id='router' class='router'>
@@ -917,6 +917,31 @@ body{margin:0;background:#000;color:white;font-family:Arial,Helvetica,sans-serif
 
 </div>
 <script>
+
+function appVersion(){
+  try{return SignalScout.getAppVersion();}catch(e){return '3.8.2';}
+}
+function forceVersionLabels(){
+  try{
+    let v = appVersion();
+    let wanted = 'Signal Scout v' + v;
+    let walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT, null);
+    let node;
+    while(node = walker.nextNode()){
+      if(node.nodeValue && node.nodeValue.indexOf('Signal Scout v') !== -1){
+        node.nodeValue = node.nodeValue.replace(/Signal Scout v[0-9.]+/g, wanted);
+      }
+      if(node.nodeValue && node.nodeValue.indexOf('v3.0.0') !== -1){
+        node.nodeValue = node.nodeValue.replace(/v3\.0\.0/g, 'v' + v);
+      }
+    }
+    ['homeVersion','menuVersion','aboutVersion'].forEach(function(id){
+      let el=document.getElementById(id);
+      if(el)el.innerText=wanted;
+    });
+  }catch(e){}
+}
+
 
 let optLastSinr = null;
 let optBestSinr = null;
@@ -1004,22 +1029,6 @@ function closeInstallerMode(){
   show('scan');
 }
 
-
-function applyBuildVersion(){
-  try{
-    let v = SignalScout.getAppVersion();
-    let c = SignalScout.getAppVersionCode();
-    let hv = document.getElementById('homeVersion');
-    if(hv) hv.innerText = 'Signal Scout v' + v;
-    let mv = document.getElementById('menuVersion');
-    if(mv) mv.innerText = 'Signal Scout v' + v;
-    let av = document.getElementById('aboutVersion');
-    if(av) av.innerText = 'Signal Scout v' + v;
-    let bc = document.getElementById('aboutBuildCode');
-    if(bc) bc.innerText = 'Build ' + c;
-  }catch(e){}
-}
-
 function bandStatus(s){
   let el=document.getElementById('bandStatus');
   if(el)el.innerText=s;
@@ -1031,7 +1040,7 @@ function lockBand(b){
 }
 
 function show(id){
- applyBuildVersion();document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active');closeAll()}
+ forceVersionLabels();document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active');closeAll()}
 function openMenu(){document.getElementById('drawer').classList.add('open');document.getElementById('scrim').classList.add('open')}
 function openRouter(){document.getElementById('router').classList.add('open');document.getElementById('scrim').classList.add('open')}
 function closeAll(){document.getElementById('drawer').classList.remove('open');document.getElementById('router').classList.remove('open');document.getElementById('scrim').classList.remove('open')}
@@ -1086,6 +1095,8 @@ function sinrWord(v){v=parseFloat(v);if(isNaN(v))return'Waiting';if(v>=20)return
 function rsrpWord(v){v=parseFloat(v);if(isNaN(v))return'Waiting';if(v>=-85)return'Excellent';if(v>=-95)return'Good';if(v>=-105)return'Fair';return'Poor'}
 function rsrqWord(v){v=parseFloat(v);if(isNaN(v))return'Waiting';if(v>=-10)return'Excellent';if(v>=-13)return'Good';if(v>=-15)return'Fair';return'Poor'}
 function bandFreq(b){if(!b||b==='--')return'--';if(b.includes('20'))return'1800 + 800 MHz';if(b.includes('3'))return'1800 MHz';if(b.includes('7'))return'2600 MHz';if(b.includes('1'))return'2100 MHz';return'LTE band'}
+setTimeout(forceVersionLabels,500);
+setTimeout(forceVersionLabels,1500);
 </script>
 </body>
 </html>
