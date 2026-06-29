@@ -1,23 +1,25 @@
-Signal Scout v3.8.0 Band Optimiser
+Signal Scout v3.9.0 Auto Band + Combo Optimiser
 
 Use:
 1. Rename this ZIP to upload.zip
 2. Upload to repo root
 3. Run Apply upload.zip Update
 4. Run Release Manager
-5. Version: 3.8.0
+5. Version: 3.9.0
 6. Channel: beta
 
 Changes:
-- Adds Band Optimiser page
-- Adds Huawei HiLink LTE band lock commands
-- Adds Unlock All LTE Bands command
-- Adds Read Band Config debug
-- Common UK LTE bands included: B1, B3, B7, B20, B28, B38, B40
-- Updates Band Optimiser live current band/SINR/score
-- Keeps Home, Dashboard, Signal Optimiser, Installer Mode and router engine otherwise unchanged
+- Adds Auto Scan Single Bands
+- Adds Auto Scan Band Combos
+- Adds results table
+- Scores each result using Signal Scout quality score
+- Recommends best result
+- Keeps manual band lock buttons
+- Keeps unlock all bands / AUTO button
+- Keeps raw debug output for troubleshooting
 
 Important:
-- Test carefully on the Huawei router.
-- If a band lock causes loss of signal, use AUTO / All LTE bands or reboot router.
-- This is Huawei first-pass support; TP-Link MR600 will need a separate driver later.
+- This sends Huawei HiLink band-lock commands.
+- Each test waits about 15 seconds for reconnect.
+- If a band loses signal, use AUTO / All LTE bands or reboot the router.
+- Combo support depends on router/firmware accepting LTEBand masks.

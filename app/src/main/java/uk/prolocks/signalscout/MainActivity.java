@@ -93,6 +93,14 @@ public class MainActivity extends Activity {
             MainActivity.this.readBandConfig();
         }
 
+        @JavascriptInterface public void autoScanBands() {
+            MainActivity.this.autoScanBands(false);
+        }
+
+        @JavascriptInterface public void autoScanCombos() {
+            MainActivity.this.autoScanBands(true);
+        }
+
         @JavascriptInterface public void setRouter(String url, String pass) {
             routerBase = url == null || url.trim().length() == 0 ? "AUTO" : url.trim();
             if (routerBase.endsWith("/")) routerBase = routerBase.substring(0, routerBase.length() - 1);
@@ -325,6 +333,139 @@ public class MainActivity extends Activity {
             } catch(Exception e) {
                 debug += "\\nERROR: " + e.toString();
                 js("setRaw(`" + esc(debug) + "`); bandStatus('Unlock failed');");
+            }
+        }).start();
+    }
+
+
+    int scoreValues(double sinr, double rsrq, double rsrp) {
+        return qualityScore(sinr, rsrq, rsrp);
+    }
+
+    String comboMask(String combo) {
+        try {
+            java.math.BigInteger mask = java.math.BigInteger.ZERO;
+            String[] parts = combo.split("\\+");
+            for (String p : parts) {
+                p = p.replace("B", "").trim();
+                if (p.length() == 0) continue;
+                int b = Integer.parseInt(p);
+                if (b > 0 && b <= 64) mask = mask.or(java.math.BigInteger.ONE.shiftLeft(b - 1));
+            }
+            return mask.toString(16).toUpperCase();
+        } catch(Exception e) {
+            return "";
+        }
+    }
+
+    void postHuaweiBandMask(String label, String mask) throws Exception {
+        ensureSession();
+        String token = nextToken();
+        if (token.length() == 0) {
+            ensureSession();
+            token = nextToken();
+        }
+        String body = "<?xml version=\"1.0\" encoding=\"UTF-8\"?><request>"
+            + "<NetworkMode>03</NetworkMode>"
+            + "<NetworkBand>3FFFFFFF</NetworkBand>"
+            + "<LTEBand>" + mask + "</LTEBand>"
+            + "</request>";
+        HttpResult res = request("POST", "/api/net/net-mode", body, token);
+        if (!(res.body.contains("OK") || res.body.contains("<response>OK</response>"))) {
+            throw new Exception("Band lock " + label + " failed HTTP " + res.code + " " + shrink(res.body));
+        }
+    }
+
+    String readSignalXmlForScan() throws Exception {
+        HttpResult r = request("GET", "/api/device/signal", null, null);
+        return r.body == null ? "" : r.body;
+    }
+
+    String makeResultJson(String label, String xml) {
+        String sinr = pick(xml, "sinr", "snr");
+        String rsrp = pick(xml, "rsrp");
+        String rsrq = pick(xml, "rsrq");
+        String rssi = pick(xml, "rssi");
+        String band = pick(xml, "band");
+        double sinrN = num(sinr);
+        double rsrqN = num(rsrq);
+        double rsrpN = num(rsrp);
+        int score = scoreValues(sinrN, rsrqN, rsrpN);
+        return "{label:`" + esc(label) + "`,band:`" + esc(band.length()>0 ? "B"+band : label) + "`,sinr:`" + esc(clean(sinr)) + "`,rsrp:`" + esc(clean(rsrp)) + "`,rsrq:`" + esc(clean(rsrq)) + "`,rssi:`" + esc(clean(rssi)) + "`,score:`" + score + "`}";
+    }
+
+    void autoScanBands(boolean combos) {
+        new Thread(() -> {
+            String debug = "";
+            try {
+                String[] tests = combos
+                    ? new String[]{"B3+B20","B3+B7","B1+B3","B1+B7","B1+B3+B20","B3+B7+B20","B1+B3+B7","B1+B3+B7+B20"}
+                    : new String[]{"B1","B3","B7","B20","B28","B38","B40"};
+
+                js("clearBandResults(); bandStatus('" + (combos ? "Starting combo scan..." : "Starting single band scan...") + "');");
+                debug += combos ? "Auto Combo Scan\\n" : "Auto Single Band Scan\\n";
+                debug += "Tests: " + java.util.Arrays.toString(tests) + "\\n\\n";
+
+                int bestScore = -999;
+                String bestLabel = "";
+                String bestMask = "";
+
+                for (String label : tests) {
+                    String mask = combos ? comboMask(label) : lteBandMask(label.replace("B",""));
+                    if (mask.length() == 0) {
+                        debug += "Skipping " + label + " invalid mask\\n";
+                        continue;
+                    }
+
+                    js("bandStatus('Testing " + esc(label) + " - locking band...');");
+                    debug += "Testing " + label + " mask " + mask + "\\n";
+
+                    try {
+                        postHuaweiBandMask(label, mask);
+                    } catch(Exception e) {
+                        debug += "LOCK ERROR " + label + ": " + e.toString() + "\\n";
+                        js("addBandResult({label:`" + esc(label) + "`,band:`--`,sinr:`ERR`,rsrp:`--`,rsrq:`--`,rssi:`--`,score:`0`});");
+                        continue;
+                    }
+
+                    for (int i=15; i>0; i--) {
+                        js("bandStatus('Testing " + esc(label) + " - waiting " + i + "s');");
+                        try { Thread.sleep(1000); } catch(Exception ignored) {}
+                    }
+
+                    String xml = "";
+                    for (int attempt=1; attempt<=5; attempt++) {
+                        xml = readSignalXmlForScan();
+                        if (pick(xml, "sinr", "snr").length() > 0 || pick(xml, "rsrp").length() > 0) break;
+                        Thread.sleep(2000);
+                    }
+
+                    String result = makeResultJson(label, xml);
+                    js("addBandResult(" + result + ");");
+                    debug += label + " result XML:\\n" + shrink(xml) + "\\n\\n";
+
+                    String scoreS = result.replaceAll(".*score:`([^`]*)`.*", "$1");
+                    int score = 0;
+                    try { score = Integer.parseInt(scoreS); } catch(Exception ignored) {}
+                    if (score > bestScore) {
+                        bestScore = score;
+                        bestLabel = label;
+                        bestMask = mask;
+                    }
+                }
+
+                if (bestLabel.length() > 0) {
+                    js("bandStatus('Best result: " + esc(bestLabel) + " score " + bestScore + "'); setBestBandResult('" + esc(bestLabel) + "', '" + bestScore + "');");
+                    debug += "BEST: " + bestLabel + " score " + bestScore + " mask " + bestMask + "\\n";
+                } else {
+                    js("bandStatus('Scan finished but no usable result');");
+                    debug += "No usable result\\n";
+                }
+
+                js("setRaw(`" + esc(debug) + "`);");
+            } catch(Exception e) {
+                debug += "\\nAUTO SCAN ERROR: " + e.toString();
+                js("setRaw(`" + esc(debug) + "`); bandStatus('Auto scan failed');");
             }
         }).start();
     }
@@ -583,6 +724,13 @@ body{margin:0;background:#000;color:white;font-family:Arial,Helvetica,sans-serif
 .reportItem{display:flex;align-items:center;gap:12px;background:rgba(0,0,0,.18);border-radius:14px;padding:12px;margin-top:10px}.reportIcon{font-size:30px;width:42px;text-align:center}.reportTitle{font-size:16px;font-weight:900}.reportSub{font-size:12px;color:#c7d6da;margin-top:3px}.chev{margin-left:auto;color:#c7d6da;font-size:24px}
 .recentBadge{display:inline-block;padding:5px 9px;border-radius:999px;background:rgba(105,255,75,.14);color:var(--green);font-size:12px;font-weight:900;margin-top:8px}.divider{height:1px;background:rgba(255,255,255,.08);margin:12px 0}.smallStatGrid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:12px}.smallStat{background:rgba(0,0,0,.18);border-radius:12px;padding:10px;text-align:center}.smallStat b{display:block;color:var(--green);font-size:18px}.smallStat span{font-size:11px;color:#c7d6da}
 
+
+.scanResultTable{margin-top:12px;border-radius:16px;overflow:hidden;border:1px solid rgba(105,255,75,.18)}
+.scanRow{display:grid;grid-template-columns:1.2fr .9fr .9fr .9fr .8fr;gap:4px;padding:10px 8px;background:rgba(0,0,0,.22);border-bottom:1px solid rgba(255,255,255,.06);font-size:12px;text-align:center;align-items:center}
+.scanRow.header{background:rgba(105,255,75,.14);color:var(--green);font-weight:900}
+.scanRow.best{background:rgba(105,255,75,.18)}
+.bestResultBox{background:rgba(105,255,75,.12);border:1px solid rgba(105,255,75,.28);border-radius:16px;padding:14px;text-align:center;color:var(--green);font-weight:900;font-size:17px;margin-top:12px}
+
 .bandGrid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-top:12px}
 .bandBtn{height:72px;border:none;border-radius:16px;background:linear-gradient(180deg,rgba(3,14,22,.94),rgba(5,22,31,.92));border:1px solid rgba(105,255,75,.26);color:white;font-weight:900;font-size:22px;box-shadow:0 0 18px rgba(0,0,0,.28)}
 .bandBtn span{display:block;font-size:12px;color:#c7d6da;font-weight:700;margin-top:3px}
@@ -790,7 +938,17 @@ body{margin:0;background:#000;color:white;font-family:Arial,Helvetica,sans-serif
   </div>
 
   <div class='fullCard'>
-    <h2>Lock LTE Band</h2>
+    <h2>Auto Optimiser</h2>
+    <button class='actionBtn greenBtn' onclick='SignalScout.autoScanBands()'>Auto Scan Single Bands</button>
+    <button class='actionBtn' onclick='SignalScout.autoScanCombos()'>Auto Scan Band Combos</button>
+    <div id='bestBandResult' class='bestResultBox'>No scan run yet</div>
+    <div class='scanResultTable' id='bandResults'>
+      <div class='scanRow header'><div>Test</div><div>SINR</div><div>RSRP</div><div>RSRQ</div><div>Score</div></div>
+    </div>
+  </div>
+
+  <div class='fullCard'>
+    <h2>Manual Lock LTE Band</h2>
     <div class='bandGrid'>
       <button class='bandBtn' onclick='lockBand("1")'>B1<span>2100 MHz</span></button>
       <button class='bandBtn' onclick='lockBand("3")'>B3<span>1800 MHz</span></button>
@@ -852,7 +1010,7 @@ body{margin:0;background:#000;color:white;font-family:Arial,Helvetica,sans-serif
   </div>
   <div class='fullCard' style='text-align:center'>
     <div style='font-size:54px'>📶</div>
-    <h2>Signal Scout v3.8.0</h2>
+    <h2>Signal Scout v3.9.0</h2>
     <div class='muted'>Built for professional LTE and 5G installers.</div>
     <div class='smallStatGrid'>
       <div class='smallStat'><b>LTE</b><span>Signal</span></div>
@@ -875,7 +1033,7 @@ body{margin:0;background:#000;color:white;font-family:Arial,Helvetica,sans-serif
   <div class='menuItem' onclick='openRouter()'>⚙ Router Manager</div>
   <div class='menuItem' onclick='show("settings")'>🔧 Settings</div>
   <div class='menuItem' onclick='show("about")'>ℹ About</div>
-  <div class='menuFoot'>Router: <span id='routerState'>Not connected</span><br>Signal Scout v3.8.0<br>🇬🇧 Pro Locks UK</div>
+  <div class='menuFoot'>Router: <span id='routerState'>Not connected</span><br>Signal Scout v3.9.0<br>🇬🇧 Pro Locks UK</div>
 </div>
 
 <div id='router' class='router'>
@@ -984,6 +1142,31 @@ function closeInstallerMode(){
   show('scan');
 }
 
+
+function clearBandResults(){
+  let t=document.getElementById('bandResults');
+  if(t)t.innerHTML='<div class="scanRow header"><div>Test</div><div>SINR</div><div>RSRP</div><div>RSRQ</div><div>Score</div></div>';
+  let b=document.getElementById('bestBandResult');
+  if(b)b.innerText='Scan running...';
+}
+function addBandResult(r){
+  let t=document.getElementById('bandResults');
+  if(!t)return;
+  let row=document.createElement('div');
+  row.className='scanRow';
+  row.setAttribute('data-label', r.label || '');
+  row.innerHTML='<div>'+safe(r.label||r.band||'--')+'</div><div>'+safe(numOnly(r.sinr))+'</div><div>'+safe(numOnly(r.rsrp))+'</div><div>'+safe(numOnly(r.rsrq))+'</div><div>'+safe(r.score||'--')+'</div>';
+  t.appendChild(row);
+}
+function setBestBandResult(label, score){
+  let b=document.getElementById('bestBandResult');
+  if(b)b.innerText='Recommended: '+label+'  •  Score '+score;
+  document.querySelectorAll('.scanRow').forEach(function(row){
+    if(row.getAttribute('data-label')===label) row.classList.add('best');
+  });
+}
+function safe(s){return String(s).replace(/[<>&]/g,function(c){return {'<':'&lt;','>':'&gt;','&':'&amp;'}[c];});}
+
 function bandStatus(s){
   let el=document.getElementById('bandStatus');
   if(el)el.innerText=s;
@@ -1034,6 +1217,9 @@ function updateLive(d){
  let oband=document.getElementById('optBand'); if(oband)oband.innerText=d.band;
  let inst=document.getElementById('instSinr'); if(inst)inst.innerText=numOnly(d.sinr);
  let ib=document.getElementById('instBest'); if(ib)ib.innerText=d.best;
+ let bob=document.getElementById('bandOptBand'); if(bob)bob.innerText=d.band;
+ let bos=document.getElementById('bandOptSinr'); if(bos)bos.innerText=numOnly(d.sinr)+' dB';
+ let boq=document.getElementById('bandOptScore'); if(boq)boq.innerText=d.quality;
  let bob=document.getElementById('bandOptBand'); if(bob)bob.innerText=d.band;
  let bos=document.getElementById('bandOptSinr'); if(bos)bos.innerText=numOnly(d.sinr)+' dB';
  let boq=document.getElementById('bandOptScore'); if(boq)boq.innerText=d.quality;
