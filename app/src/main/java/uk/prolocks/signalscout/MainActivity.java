@@ -81,6 +81,18 @@ public class MainActivity extends Activity {
             });
         }
 
+        @JavascriptInterface public void lockHuaweiBand(String band) {
+            MainActivity.this.lockHuaweiBand(band);
+        }
+
+        @JavascriptInterface public void unlockHuaweiBands() {
+            MainActivity.this.unlockHuaweiBands();
+        }
+
+        @JavascriptInterface public void readBandConfig() {
+            MainActivity.this.readBandConfig();
+        }
+
         @JavascriptInterface public void setRouter(String url, String pass) {
             routerBase = url == null || url.trim().length() == 0 ? "AUTO" : url.trim();
             if (routerBase.endsWith("/")) routerBase = routerBase.substring(0, routerBase.length() - 1);
@@ -207,6 +219,135 @@ public class MainActivity extends Activity {
         if (type.equals("3")) return b64Sha256("admin" + b64Sha256(password) + token);
         if (type.equals("2")) return b64Sha256(password);
         return b64HexSha256("admin" + b64HexSha256(password) + token);
+    }
+
+
+    String lteBandMask(String band) {
+        try {
+            int b = Integer.parseInt(band.replace("B", "").trim());
+            if (b <= 0 || b > 64) return "";
+            java.math.BigInteger one = java.math.BigInteger.ONE;
+            return one.shiftLeft(b - 1).toString(16).toUpperCase();
+        } catch(Exception e) {
+            return "";
+        }
+    }
+
+    String bandName(String band) {
+        String b = band.replace("B", "").trim();
+        if (b.equals("1")) return "B1 2100 MHz";
+        if (b.equals("3")) return "B3 1800 MHz";
+        if (b.equals("7")) return "B7 2600 MHz";
+        if (b.equals("8")) return "B8 900 MHz";
+        if (b.equals("20")) return "B20 800 MHz";
+        if (b.equals("28")) return "B28 700 MHz";
+        if (b.equals("32")) return "B32 1500 MHz";
+        if (b.equals("38")) return "B38 2600 TDD";
+        if (b.equals("40")) return "B40 2300 TDD";
+        return "B" + b;
+    }
+
+    void lockHuaweiBand(String band) {
+        new Thread(() -> {
+            String debug = "";
+            try {
+                String cleanBand = band.replace("B", "").trim();
+                String mask = lteBandMask(cleanBand);
+                if (mask.length() == 0) {
+                    js("bandStatus('Invalid band');");
+                    return;
+                }
+
+                js("bandStatus('Locking to " + esc(bandName(cleanBand)) + "...');");
+                debug += "Locking Huawei LTE band\\n";
+                debug += "Band: " + bandName(cleanBand) + "\\n";
+                debug += "LTEBand mask: " + mask + "\\n\\n";
+
+                ensureSession();
+                String token = nextToken();
+                if (token.length() == 0) {
+                    ensureSession();
+                    token = nextToken();
+                }
+
+                String body = "<?xml version=\"1.0\" encoding=\"UTF-8\"?><request>"
+                    + "<NetworkMode>03</NetworkMode>"
+                    + "<NetworkBand>3FFFFFFF</NetworkBand>"
+                    + "<LTEBand>" + mask + "</LTEBand>"
+                    + "</request>";
+
+                HttpResult res = request("POST", "/api/net/net-mode", body, token);
+                debug += "POST /api/net/net-mode HTTP " + res.code + "\\n";
+                debug += shrink(res.body) + "\\n\\n";
+
+                HttpResult check = request("GET", "/api/net/net-mode", null, null);
+                debug += "GET /api/net/net-mode HTTP " + check.code + "\\n";
+                debug += shrink(check.body) + "\\n";
+
+                String msg = res.body.contains("OK") ? "Locked to " + bandName(cleanBand) : "Band lock sent - check router";
+                js("setRaw(`" + esc(debug) + "`); bandStatus('" + esc(msg) + "');");
+            } catch(Exception e) {
+                debug += "\\nERROR: " + e.toString();
+                js("setRaw(`" + esc(debug) + "`); bandStatus('Band lock failed');");
+            }
+        }).start();
+    }
+
+    void unlockHuaweiBands() {
+        new Thread(() -> {
+            String debug = "";
+            try {
+                js("bandStatus('Unlocking all LTE bands...');");
+                ensureSession();
+                String token = nextToken();
+                if (token.length() == 0) {
+                    ensureSession();
+                    token = nextToken();
+                }
+
+                String body = "<?xml version=\"1.0\" encoding=\"UTF-8\"?><request>"
+                    + "<NetworkMode>03</NetworkMode>"
+                    + "<NetworkBand>3FFFFFFF</NetworkBand>"
+                    + "<LTEBand>7FFFFFFFFFFFFFFF</LTEBand>"
+                    + "</request>";
+
+                HttpResult res = request("POST", "/api/net/net-mode", body, token);
+                debug += "Unlock all bands\\n";
+                debug += "POST /api/net/net-mode HTTP " + res.code + "\\n";
+                debug += shrink(res.body) + "\\n\\n";
+
+                HttpResult check = request("GET", "/api/net/net-mode", null, null);
+                debug += "GET /api/net/net-mode HTTP " + check.code + "\\n";
+                debug += shrink(check.body) + "\\n";
+
+                String msg = res.body.contains("OK") ? "All LTE bands unlocked" : "Unlock sent - check router";
+                js("setRaw(`" + esc(debug) + "`); bandStatus('" + esc(msg) + "');");
+            } catch(Exception e) {
+                debug += "\\nERROR: " + e.toString();
+                js("setRaw(`" + esc(debug) + "`); bandStatus('Unlock failed');");
+            }
+        }).start();
+    }
+
+    void readBandConfig() {
+        new Thread(() -> {
+            String debug = "";
+            try {
+                js("bandStatus('Reading band config...');");
+                HttpResult r = request("GET", "/api/net/net-mode", null, null);
+                debug += "GET /api/net/net-mode HTTP " + r.code + "\\n";
+                debug += shrink(r.body) + "\\n\\n";
+
+                HttpResult signal = request("GET", "/api/device/signal", null, null);
+                debug += "GET /api/device/signal HTTP " + signal.code + "\\n";
+                debug += shrink(signal.body) + "\\n";
+
+                js("setRaw(`" + esc(debug) + "`); bandStatus('Band config read');");
+            } catch(Exception e) {
+                debug += "\\nERROR: " + e.toString();
+                js("setRaw(`" + esc(debug) + "`); bandStatus('Band config failed');");
+            }
+        }).start();
     }
 
     void debugEndpoints() {
@@ -441,6 +582,14 @@ body{margin:0;background:#000;color:white;font-family:Arial,Helvetica,sans-serif
 .tabRow{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:12px}.tab{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.08);border-radius:12px;padding:10px 4px;text-align:center;color:#c7d6da;font-size:13px}.tab.active{background:rgba(105,255,75,.14);border-color:rgba(105,255,75,.34);color:var(--green)}
 .reportItem{display:flex;align-items:center;gap:12px;background:rgba(0,0,0,.18);border-radius:14px;padding:12px;margin-top:10px}.reportIcon{font-size:30px;width:42px;text-align:center}.reportTitle{font-size:16px;font-weight:900}.reportSub{font-size:12px;color:#c7d6da;margin-top:3px}.chev{margin-left:auto;color:#c7d6da;font-size:24px}
 .recentBadge{display:inline-block;padding:5px 9px;border-radius:999px;background:rgba(105,255,75,.14);color:var(--green);font-size:12px;font-weight:900;margin-top:8px}.divider{height:1px;background:rgba(255,255,255,.08);margin:12px 0}.smallStatGrid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:12px}.smallStat{background:rgba(0,0,0,.18);border-radius:12px;padding:10px;text-align:center}.smallStat b{display:block;color:var(--green);font-size:18px}.smallStat span{font-size:11px;color:#c7d6da}
+
+.bandGrid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-top:12px}
+.bandBtn{height:72px;border:none;border-radius:16px;background:linear-gradient(180deg,rgba(3,14,22,.94),rgba(5,22,31,.92));border:1px solid rgba(105,255,75,.26);color:white;font-weight:900;font-size:22px;box-shadow:0 0 18px rgba(0,0,0,.28)}
+.bandBtn span{display:block;font-size:12px;color:#c7d6da;font-weight:700;margin-top:3px}
+.bandBtn.good{background:linear-gradient(135deg,rgba(34,177,76,.65),rgba(105,255,75,.35))}
+.bandStatusBox{background:rgba(0,0,0,.22);border:1px solid rgba(105,255,75,.18);border-radius:16px;padding:14px;text-align:center;margin-top:12px;color:var(--green);font-weight:900;font-size:17px}
+.warnBox{background:rgba(255,209,59,.10);border:1px solid rgba(255,209,59,.28);color:#ffe38c;border-radius:14px;padding:12px;margin-top:12px;font-size:13px;line-height:1.35}
+
 .settingsGrid{display:grid;grid-template-columns:1fr;gap:10px;margin-top:12px}.settingRow{display:flex;justify-content:space-between;align-items:center;background:rgba(0,0,0,.18);border-radius:14px;padding:13px}.settingName{font-size:15px;font-weight:800}.settingSub{font-size:12px;color:#c7d6da;margin-top:2px}.toggle{width:52px;height:28px;border-radius:20px;background:rgba(105,255,75,.25);position:relative}.toggle:after{content:'';position:absolute;width:22px;height:22px;border-radius:50%;background:var(--green);right:3px;top:3px}
 
 .drawer{position:absolute;top:0;bottom:0;left:-82%;width:82%;z-index:10;transition:.25s;background:#020910;box-shadow:18px 0 40px rgba(0,0,0,.6);padding:26px 18px}.drawer.open{left:0}.drawer h1{color:var(--green);margin:20px 0 2px;font-size:32px}.drawer h2{margin:0 0 18px;font-size:18px}.menuItem{height:48px;border-radius:12px;display:flex;align-items:center;gap:14px;padding:0 12px;font-size:16px}.menuItem.active{background:rgba(105,255,75,.18);color:var(--green)}.menuFoot{position:absolute;bottom:24px;left:18px;right:18px;color:#a8bac1;font-size:13px}
@@ -617,6 +766,54 @@ body{margin:0;background:#000;color:white;font-family:Arial,Helvetica,sans-serif
 </div>
 </section>
 
+
+<section id='bands' class='screen'>
+<img class='bg' src='dashboard_bg.png'>
+<button id='menuBtn' onclick='openMenu()'>☰</button>
+<button id='routerBtn' onclick='openRouter()'>⋮</button>
+<div class='pageWrap'>
+  <div class='title'>Band Optimiser</div>
+  <div class='pageHero'>
+    <h1>Find the best LTE band</h1>
+    <p>Lock one band at a time, wait for the router to reconnect, then compare SINR, RSRP and RSRQ.</p>
+  </div>
+
+  <div class='fullCard'>
+    <h2>Current Reading</h2>
+    <div class='smallStatGrid'>
+      <div class='smallStat'><b id='bandOptBand'>--</b><span>Band</span></div>
+      <div class='smallStat'><b id='bandOptSinr'>--</b><span>SINR</span></div>
+      <div class='smallStat'><b id='bandOptScore'>--</b><span>Score</span></div>
+    </div>
+    <div id='bandStatus' class='bandStatusBox'>Ready</div>
+    <button class='actionBtn darkBtn' onclick='SignalScout.readBandConfig()'>Read Band Config</button>
+  </div>
+
+  <div class='fullCard'>
+    <h2>Lock LTE Band</h2>
+    <div class='bandGrid'>
+      <button class='bandBtn' onclick='lockBand("1")'>B1<span>2100 MHz</span></button>
+      <button class='bandBtn' onclick='lockBand("3")'>B3<span>1800 MHz</span></button>
+      <button class='bandBtn good' onclick='lockBand("7")'>B7<span>2600 MHz</span></button>
+      <button class='bandBtn' onclick='lockBand("20")'>B20<span>800 MHz</span></button>
+      <button class='bandBtn' onclick='lockBand("28")'>B28<span>700 MHz</span></button>
+      <button class='bandBtn' onclick='lockBand("38")'>B38<span>2600 TDD</span></button>
+      <button class='bandBtn' onclick='lockBand("40")'>B40<span>2300 TDD</span></button>
+      <button class='bandBtn' onclick='SignalScout.unlockHuaweiBands()'>AUTO<span>All LTE bands</span></button>
+    </div>
+    <div class='warnBox'>Use band locking carefully. If the router loses signal, unlock all bands or reboot the router. This first version targets Huawei HiLink routers.</div>
+  </div>
+
+  <div class='fullCard'>
+    <h2>Recommended Workflow</h2>
+    <div class='reportItem'><div class='reportIcon'>1</div><div><div class='reportTitle'>Lock B20</div><div class='reportSub'>Check long-range baseline</div></div></div>
+    <div class='reportItem'><div class='reportIcon'>2</div><div><div class='reportTitle'>Lock B3 / B7</div><div class='reportSub'>Check faster capacity bands</div></div></div>
+    <div class='reportItem'><div class='reportIcon'>3</div><div><div class='reportTitle'>Pick best score</div><div class='reportSub'>SINR first, then RSRQ and RSRP</div></div></div>
+    <button class='actionBtn greenBtn' onclick='show("graphs")'>Compare on Live Graphs</button>
+  </div>
+</div>
+</section>
+
 <section id='settings' class='screen'>
 <img class='bg' src='dashboard_bg.png'>
 <button id='menuBtn' onclick='openMenu()'>☰</button>
@@ -655,7 +852,7 @@ body{margin:0;background:#000;color:white;font-family:Arial,Helvetica,sans-serif
   </div>
   <div class='fullCard' style='text-align:center'>
     <div style='font-size:54px'>📶</div>
-    <h2>Signal Scout v3.7.1</h2>
+    <h2>Signal Scout v3.8.0</h2>
     <div class='muted'>Built for professional LTE and 5G installers.</div>
     <div class='smallStatGrid'>
       <div class='smallStat'><b>LTE</b><span>Signal</span></div>
@@ -672,12 +869,13 @@ body{margin:0;background:#000;color:white;font-family:Arial,Helvetica,sans-serif
   <div class='menuItem active' onclick='show("dashboard")'>🏠 Dashboard</div>
   <div class='menuItem' onclick='show("scan")'>📶 Signal Optimiser</div>
   <div class='menuItem' onclick='show("tower")'>🗼 Tower Finder</div>
+  <div class='menuItem' onclick='show("bands")'>🔒 Band Optimiser</div>
   <div class='menuItem' onclick='show("graphs")'>📈 Live Graphs</div>
   <div class='menuItem' onclick='show("reports")'>📄 Reports</div>
   <div class='menuItem' onclick='openRouter()'>⚙ Router Manager</div>
   <div class='menuItem' onclick='show("settings")'>🔧 Settings</div>
   <div class='menuItem' onclick='show("about")'>ℹ About</div>
-  <div class='menuFoot'>Router: <span id='routerState'>Not connected</span><br>Signal Scout v3.7.1<br>🇬🇧 Pro Locks UK</div>
+  <div class='menuFoot'>Router: <span id='routerState'>Not connected</span><br>Signal Scout v3.8.0<br>🇬🇧 Pro Locks UK</div>
 </div>
 
 <div id='router' class='router'>
@@ -786,6 +984,16 @@ function closeInstallerMode(){
   show('scan');
 }
 
+function bandStatus(s){
+  let el=document.getElementById('bandStatus');
+  if(el)el.innerText=s;
+  setStatus(s);
+}
+function lockBand(b){
+  bandStatus('Sending band lock for B'+b+'...');
+  SignalScout.lockHuaweiBand(String(b));
+}
+
 function show(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active');closeAll()}
 function openMenu(){document.getElementById('drawer').classList.add('open');document.getElementById('scrim').classList.add('open')}
 function openRouter(){document.getElementById('router').classList.add('open');document.getElementById('scrim').classList.add('open')}
@@ -826,6 +1034,9 @@ function updateLive(d){
  let oband=document.getElementById('optBand'); if(oband)oband.innerText=d.band;
  let inst=document.getElementById('instSinr'); if(inst)inst.innerText=numOnly(d.sinr);
  let ib=document.getElementById('instBest'); if(ib)ib.innerText=d.best;
+ let bob=document.getElementById('bandOptBand'); if(bob)bob.innerText=d.band;
+ let bos=document.getElementById('bandOptSinr'); if(bos)bos.innerText=numOnly(d.sinr)+' dB';
+ let boq=document.getElementById('bandOptScore'); if(boq)boq.innerText=d.quality;
  let gl=document.getElementById('graphLive'); if(gl)gl.innerText=numOnly(d.sinr);
  let gb=document.getElementById('graphBest'); if(gb)gb.innerText=d.best;
  let tb=document.getElementById('towerBest'); if(tb)tb.innerText=numOnly(d.best);
