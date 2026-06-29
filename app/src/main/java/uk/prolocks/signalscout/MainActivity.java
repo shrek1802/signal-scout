@@ -66,6 +66,26 @@ public class MainActivity extends Activity {
     }
 
     public class Bridge {
+        @JavascriptInterface public String getAppVersion() {
+            try {
+                return getPackageManager().getPackageInfo(getPackageName(), 0).versionName;
+            } catch(Exception e) {
+                return "3.8.1";
+            }
+        }
+
+        @JavascriptInterface public int getAppVersionCode() {
+            try {
+                if (android.os.Build.VERSION.SDK_INT >= 28) {
+                    return (int)getPackageManager().getPackageInfo(getPackageName(), 0).getLongVersionCode();
+                }
+                return getPackageManager().getPackageInfo(getPackageName(), 0).versionCode;
+            } catch(Exception e) {
+                return 3810;
+            }
+        }
+
+
         @JavascriptInterface public void openInstallerActivity(String sinr, String best, String status) {
             runOnUiThread(() -> {
                 try {
@@ -123,7 +143,7 @@ public class MainActivity extends Activity {
     void detectAndLogin() {
         new Thread(() -> {
             js("clearLog(); setStatus('Detecting router...');");
-            log("Signal Scout Router Engine v3.5.5");
+            log("Signal Scout Router Engine v3.8.1");
             String manual = routerBase;
             ArrayList<String> bases = new ArrayList<>();
             if (manual != null && manual.length() > 0 && !manual.equalsIgnoreCase("AUTO")) bases.add(manual);
@@ -852,7 +872,7 @@ body{margin:0;background:#000;color:white;font-family:Arial,Helvetica,sans-serif
   </div>
   <div class='fullCard' style='text-align:center'>
     <div style='font-size:54px'>📶</div>
-    <h2>Signal Scout v3.8.0</h2>
+    <h2><span id='homeVersion'>Signal Scout v3.8.1</span></h2>
     <div class='muted'>Built for professional LTE and 5G installers.</div>
     <div class='smallStatGrid'>
       <div class='smallStat'><b>LTE</b><span>Signal</span></div>
@@ -875,7 +895,7 @@ body{margin:0;background:#000;color:white;font-family:Arial,Helvetica,sans-serif
   <div class='menuItem' onclick='openRouter()'>⚙ Router Manager</div>
   <div class='menuItem' onclick='show("settings")'>🔧 Settings</div>
   <div class='menuItem' onclick='show("about")'>ℹ About</div>
-  <div class='menuFoot'>Router: <span id='routerState'>Not connected</span><br>Signal Scout v3.8.0<br>🇬🇧 Pro Locks UK</div>
+  <div class='menuFoot'>Router: <span id='routerState'>Not connected</span><br><span id='menuVersion'>Signal Scout v3.8.1</span><br>🇬🇧 Pro Locks UK</div>
 </div>
 
 <div id='router' class='router'>
@@ -984,6 +1004,22 @@ function closeInstallerMode(){
   show('scan');
 }
 
+
+function applyBuildVersion(){
+  try{
+    let v = SignalScout.getAppVersion();
+    let c = SignalScout.getAppVersionCode();
+    let hv = document.getElementById('homeVersion');
+    if(hv) hv.innerText = 'Signal Scout v' + v;
+    let mv = document.getElementById('menuVersion');
+    if(mv) mv.innerText = 'Signal Scout v' + v;
+    let av = document.getElementById('aboutVersion');
+    if(av) av.innerText = 'Signal Scout v' + v;
+    let bc = document.getElementById('aboutBuildCode');
+    if(bc) bc.innerText = 'Build ' + c;
+  }catch(e){}
+}
+
 function bandStatus(s){
   let el=document.getElementById('bandStatus');
   if(el)el.innerText=s;
@@ -994,7 +1030,8 @@ function lockBand(b){
   SignalScout.lockHuaweiBand(String(b));
 }
 
-function show(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active');closeAll()}
+function show(id){
+ applyBuildVersion();document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active');closeAll()}
 function openMenu(){document.getElementById('drawer').classList.add('open');document.getElementById('scrim').classList.add('open')}
 function openRouter(){document.getElementById('router').classList.add('open');document.getElementById('scrim').classList.add('open')}
 function closeAll(){document.getElementById('drawer').classList.remove('open');document.getElementById('router').classList.remove('open');document.getElementById('scrim').classList.remove('open')}
