@@ -70,7 +70,7 @@ public class MainActivity extends Activity {
             try {
                 return getPackageManager().getPackageInfo(getPackageName(), 0).versionName;
             } catch(Exception e) {
-                return "3.8.7";
+                return "3.8.8";
             }
         }
 
@@ -183,7 +183,7 @@ public class MainActivity extends Activity {
     void detectAndLogin() {
         new Thread(() -> {
             js("clearLog(); setStatus('Detecting router...');");
-            log("Signal Scout Router Engine v3.8.7");
+            log("Signal Scout Router Engine v3.8.8");
             String manual = routerBase;
             ArrayList<String> bases = new ArrayList<>();
             if (manual != null && manual.length() > 0 && !manual.equalsIgnoreCase("AUTO")) bases.add(manual);
@@ -539,7 +539,7 @@ body{margin:0;background:#000;color:white;font-family:Arial,Helvetica,sans-serif
 <button id='beginBtn' class='homeBtn' onclick='show("dashboard")'>Begin Survey</button>
 <button id='setupBtn' class='homeBtn' onclick='openRouter()'>First Time Setup</button>
 
-<div id='homeVersionLine' style="position:absolute;left:0;right:0;top:28.9%;text-align:center;color:rgba(225,235,240,.74);font-size:14px;font-weight:700;letter-spacing:.2px;z-index:6;pointer-events:none">Version 3.8.7 Beta</div>
+<div id='homeVersionLine' style="position:absolute;left:0;right:0;top:30.9%;text-align:center;color:rgba(225,235,240,.68);font-size:13px;font-weight:700;letter-spacing:.15px;z-index:6;pointer-events:none">Version 3.8.8 Beta</div>
 <div id='homeFooterMask' style="position:absolute;left:0;right:0;bottom:0;height:7.2%;background:linear-gradient(to bottom,rgba(0,7,14,.78),rgba(0,7,14,.96));z-index:4;pointer-events:none"></div>
 <div id='homeProLocksFooter' style="position:absolute;left:0;right:0;bottom:42px;text-align:center;color:rgba(225,235,240,.68);font-size:14px;font-weight:700;z-index:6;pointer-events:none">🇬🇧 Pro Locks UK</div>
 
@@ -782,7 +782,7 @@ body{margin:0;background:#000;color:white;font-family:Arial,Helvetica,sans-serif
   </div>
   <div class='fullCard' style='text-align:center'>
     <div style='font-size:54px'>📶</div>
-    <h2>Signal Scout v3.8.7</h2>
+    <h2>Signal Scout v3.8.8</h2>
     <div class='muted'>Built for professional LTE and 5G installers.</div>
     <div class='smallStatGrid'>
       <div class='smallStat'><b>LTE</b><span>Signal</span></div>
@@ -805,7 +805,7 @@ body{margin:0;background:#000;color:white;font-family:Arial,Helvetica,sans-serif
   <div class='menuItem' onclick='openRouter()'>⚙ Router Manager</div>
   <div class='menuItem' onclick='show("settings")'>🔧 Settings</div>
   <div class='menuItem' onclick='show("about")'>ℹ About</div>
-  <div class='menuFoot'>Router: <span id='routerState'>Not connected</span><br>Signal Scout v3.8.7<br>🇬🇧 Pro Locks UK</div>
+  <div class='menuFoot'>Router: <span id='routerState'>Not connected</span><br>Signal Scout v3.8.8<br>🇬🇧 Pro Locks UK</div>
 </div>
 
 <div id='router' class='router'>
@@ -830,7 +830,7 @@ body{margin:0;background:#000;color:white;font-family:Arial,Helvetica,sans-serif
 
 function updateHomeVersionLine(){
   try{
-    var v = SignalScout.getAppVersion ? SignalScout.getAppVersion() : '3.8.7';
+    var v = SignalScout.getAppVersion ? SignalScout.getAppVersion() : '3.8.8';
     var el = document.getElementById('homeVersionLine');
     if(el) el.innerText = 'Version ' + v + ' Beta';
   }catch(e){}
