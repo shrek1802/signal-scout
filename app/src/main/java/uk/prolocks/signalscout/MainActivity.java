@@ -70,7 +70,7 @@ public class MainActivity extends Activity {
             try {
                 return getPackageManager().getPackageInfo(getPackageName(), 0).versionName;
             } catch(Exception e) {
-                return "3.8.1210";
+                return "3.8.13210";
             }
         }
 
@@ -183,7 +183,7 @@ public class MainActivity extends Activity {
     void detectAndLogin() {
         new Thread(() -> {
             js("clearLog(); setStatus('Detecting router...');");
-            log("Signal Scout Router Engine v3.8.1222");
+            log("Signal Scout Router Engine v3.8.1333");
             String manual = routerBase;
             ArrayList<String> bases = new ArrayList<>();
             if (manual != null && manual.length() > 0 && !manual.equalsIgnoreCase("AUTO")) bases.add(manual);
@@ -529,7 +529,7 @@ body{margin:0;background:#000;color:white;font-family:Arial,Helvetica,sans-serif
 .router{position:absolute;left:0;right:0;bottom:-100%;background:#071d28;border-radius:24px 24px 0 0;border:1px solid rgba(101,255,73,.28);padding:18px;z-index:20;transition:.25s;max-height:92vh;overflow:auto}.router.open{bottom:0}.router h2{text-align:center;margin:0 0 12px}.router input{width:100%;background:#06131d;border:1px solid rgba(101,255,73,.24);border-radius:12px;padding:13px;color:white;margin:6px 0;font-size:16px}.btn{width:100%;height:46px;border:none;border-radius:12px;background:linear-gradient(135deg,#0a84ff,#00b8ff);color:white;font-weight:800;font-size:15px;margin-top:8px}.btn.dark{background:#1c3440}.row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}.raw{font-family:monospace;color:#a7b9bf;font-size:10px;white-space:pre-wrap;max-height:180px;overflow:auto;margin-top:8px}.log{font-family:monospace;color:#d7f4df;font-size:11px;white-space:pre-wrap;max-height:145px;overflow:auto;background:#03111a;border-radius:10px;padding:8px;margin-top:8px}
 .placeholder{padding:30px;background:#020b13;height:100%;color:white}.placeholder h1{margin-top:70px}
 
-/* v3.8.1221 clean background + real home UI */
+/* v3.8.133221 clean background + real home UI */
 #home .bg{
   object-fit:cover;
 }
@@ -646,7 +646,7 @@ body{margin:0;background:#000;color:white;font-family:Arial,Helvetica,sans-serif
 }
 
 
-/* v3.8.12 logo branding */
+/* v3.8.1332 logo branding */
 .cleanHomeLogo{
   width:72%;
   max-width:360px;
@@ -666,6 +666,27 @@ body{margin:0;background:#000;color:white;font-family:Arial,Helvetica,sans-serif
   font-size:13px!important;
 }
 
+
+/* v3.8.13 clean home logo layout */
+.cleanHomeHeader{top:6.2%!important}
+.cleanLogoMark{width:92px;height:92px;border-radius:24px;margin:0 auto 8px auto;position:relative;background:rgba(0,12,20,.82);border:2px solid rgba(105,255,75,.86);box-shadow:0 0 22px rgba(105,255,75,.22), inset 0 1px 0 rgba(255,255,255,.12)}
+.cleanLogoS{position:absolute;left:0;right:0;top:8px;text-align:center;font-size:66px;line-height:1;font-weight:950;color:#fff;text-shadow:0 3px 12px rgba(0,0,0,.75)}
+.cleanLogoSlash{position:absolute;left:41px;top:14px;width:11px;height:68px;border-radius:8px;background:#63f14c;transform:rotate(-28deg);box-shadow:0 0 10px rgba(105,255,75,.7)}
+.cleanLogoArc{position:absolute;border:4px solid #63f14c;border-left-color:transparent;border-bottom-color:transparent;border-radius:50%;transform:rotate(-8deg);opacity:.95}
+.cleanLogoArc.a1{width:30px;height:30px;right:-18px;top:8px}
+.cleanLogoArc.a2{width:45px;height:45px;right:-26px;top:-1px;opacity:.82}
+.cleanLogoArc.a3{width:60px;height:60px;right:-34px;top:-10px;opacity:.66}
+.cleanLogoWord{text-align:center;margin-top:2px;line-height:.95;text-shadow:0 4px 16px rgba(0,0,0,.82)}
+.cleanLogoWord .sig{display:block;font-size:39px;font-weight:950;color:#fff;letter-spacing:.5px}
+.cleanLogoWord .scout{display:block;font-size:42px;font-weight:950;color:#63f14c;letter-spacing:.5px}
+.cleanHomeSub{margin-top:14px!important;font-size:17px!important;line-height:1.25!important}
+.cleanHomeVersion{margin-top:8px!important;font-size:13px!important}
+.cleanHomeBtn{font-size:20px!important;white-space:nowrap!important;padding:0 28px!important}
+.cleanHomeBtn b{white-space:nowrap!important}
+.cleanHomeSetup b{font-size:20px!important}
+.cleanHomeButtons{bottom:10.9%!important}
+.cleanHomeFooter{bottom:4.6%!important}
+
 </style>
 </head>
 <body>
@@ -679,9 +700,16 @@ body{margin:0;background:#000;color:white;font-family:Arial,Helvetica,sans-serif
 <button id='setupBtn' class='homeBtn' onclick='openRouter()'>First Time Setup</button>
 
 <div class='cleanHomeHeader'>
-  <img class='cleanHomeLogo' src='signal_scout_logo.png'>
+  <div class='cleanLogoMark'>
+    <div class='cleanLogoS'>S</div>
+    <div class='cleanLogoSlash'></div>
+    <div class='cleanLogoArc a1'></div>
+    <div class='cleanLogoArc a2'></div>
+    <div class='cleanLogoArc a3'></div>
+  </div>
+  <div class='cleanLogoWord'><span class='sig'>Signal</span><span class='scout'>Scout</span></div>
   <div class='cleanHomeSub'>Professional LTE &amp; 5G<br>Installation Assistant</div>
-  <div id='homeVersionLine' class='cleanHomeVersion'>Version 3.8.121 Beta</div>
+  <div id='homeVersionLine' class='cleanHomeVersion'>Version 3.8.1321 Beta</div>
 </div>
 
 <div class='cleanHomeButtons'>
@@ -930,7 +958,7 @@ body{margin:0;background:#000;color:white;font-family:Arial,Helvetica,sans-serif
   </div>
   <div class='fullCard' style='text-align:center'>
     <div style='font-size:54px'>📶</div>
-    <h2>Signal Scout v3.8.1222</h2>
+    <h2>Signal Scout v3.8.1333</h2>
     <div class='muted'>Built for professional LTE and 5G installers.</div>
     <div class='smallStatGrid'>
       <div class='smallStat'><b>LTE</b><span>Signal</span></div>
@@ -953,7 +981,7 @@ body{margin:0;background:#000;color:white;font-family:Arial,Helvetica,sans-serif
   <div class='menuItem' onclick='openRouter()'>⚙ Router Manager</div>
   <div class='menuItem' onclick='show("settings")'>🔧 Settings</div>
   <div class='menuItem' onclick='show("about")'>ℹ About</div>
-  <div class='menuFoot'>Router: <span id='routerState'>Not connected</span><br>Signal Scout v3.8.1222<br>🇬🇧 Pro Locks UK</div>
+  <div class='menuFoot'>Router: <span id='routerState'>Not connected</span><br>Signal Scout v3.8.1333<br>🇬🇧 Pro Locks UK</div>
 </div>
 
 <div id='router' class='router'>
@@ -978,7 +1006,7 @@ body{margin:0;background:#000;color:white;font-family:Arial,Helvetica,sans-serif
 
 function updateHomeVersionLine(){
   try{
-    var v = SignalScout.getAppVersion ? SignalScout.getAppVersion() : '3.8.1210';
+    var v = SignalScout.getAppVersion ? SignalScout.getAppVersion() : '3.8.13210';
     var el = document.getElementById('homeVersionLine');
     if(el) el.innerText = 'Version ' + v + ' Beta';
   }catch(e){}
