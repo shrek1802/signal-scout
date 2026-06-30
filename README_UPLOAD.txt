@@ -1,17 +1,18 @@
-Signal Scout v3.8.6 Home Layout Fix
+Signal Scout v3.8.7 Home Safe Layout
 
 Use:
 1. Rename this ZIP to upload.zip
 2. Upload to repo root
 3. Run Apply upload.zip Update
 4. Run Release Manager
-5. Version: 3.8.6
+5. Version: 3.8.7
 6. Channel: beta
 
 Changes:
-- Layout-only fix from v3.8.5
-- Moves Version text slightly up
-- Moves Pro Locks UK footer safely above the Android navigation area
-- Adds safe spacing for the FIRST TIME SETUP green border
-- No image edits
+- Built from clean working v3.8.0 base
+- Does NOT edit the home background image
+- Keeps green FIRST TIME SETUP bottom line intact
+- Adds a footer mask below the button area only
+- Moves Version text below Installation Assistant without overlap
+- Moves Pro Locks UK into a safe footer area
 - No router/login/band logic changes
