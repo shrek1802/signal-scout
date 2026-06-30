@@ -70,7 +70,7 @@ public class MainActivity extends Activity {
             try {
                 return getPackageManager().getPackageInfo(getPackageName(), 0).versionName;
             } catch(Exception e) {
-                return "3.8.143210";
+                return "3.8.1543210";
             }
         }
 
@@ -183,7 +183,7 @@ public class MainActivity extends Activity {
     void detectAndLogin() {
         new Thread(() -> {
             js("clearLog(); setStatus('Detecting router...');");
-            log("Signal Scout Router Engine v3.8.1444");
+            log("Signal Scout Router Engine v3.8.1555");
             String manual = routerBase;
             ArrayList<String> bases = new ArrayList<>();
             if (manual != null && manual.length() > 0 && !manual.equalsIgnoreCase("AUTO")) bases.add(manual);
@@ -529,7 +529,7 @@ body{margin:0;background:#000;color:white;font-family:Arial,Helvetica,sans-serif
 .router{position:absolute;left:0;right:0;bottom:-100%;background:#071d28;border-radius:24px 24px 0 0;border:1px solid rgba(101,255,73,.28);padding:18px;z-index:20;transition:.25s;max-height:92vh;overflow:auto}.router.open{bottom:0}.router h2{text-align:center;margin:0 0 12px}.router input{width:100%;background:#06131d;border:1px solid rgba(101,255,73,.24);border-radius:12px;padding:13px;color:white;margin:6px 0;font-size:16px}.btn{width:100%;height:46px;border:none;border-radius:12px;background:linear-gradient(135deg,#0a84ff,#00b8ff);color:white;font-weight:800;font-size:15px;margin-top:8px}.btn.dark{background:#1c3440}.row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}.raw{font-family:monospace;color:#a7b9bf;font-size:10px;white-space:pre-wrap;max-height:180px;overflow:auto;margin-top:8px}.log{font-family:monospace;color:#d7f4df;font-size:11px;white-space:pre-wrap;max-height:145px;overflow:auto;background:#03111a;border-radius:10px;padding:8px;margin-top:8px}
 .placeholder{padding:30px;background:#020b13;height:100%;color:white}.placeholder h1{margin-top:70px}
 
-/* v3.8.14433221 clean background + real home UI */
+/* v3.8.1554433221 clean background + real home UI */
 #home .bg{
   object-fit:cover;
 }
@@ -646,7 +646,7 @@ body{margin:0;background:#000;color:white;font-family:Arial,Helvetica,sans-serif
 }
 
 
-/* v3.8.144332 logo branding */
+/* v3.8.15544332 logo branding */
 .cleanHomeLogo{
   width:72%;
   max-width:360px;
@@ -667,7 +667,7 @@ body{margin:0;background:#000;color:white;font-family:Arial,Helvetica,sans-serif
 }
 
 
-/* v3.8.1443 clean home logo layout */
+/* v3.8.155443 clean home logo layout */
 .cleanHomeHeader{top:6.2%!important}
 .cleanLogoMark{width:92px;height:92px;border-radius:24px;margin:0 auto 8px auto;position:relative;background:rgba(0,12,20,.82);border:2px solid rgba(105,255,75,.86);box-shadow:0 0 22px rgba(105,255,75,.22), inset 0 1px 0 rgba(255,255,255,.12)}
 .cleanLogoS{position:absolute;left:0;right:0;top:8px;text-align:center;font-size:66px;line-height:1;font-weight:950;color:#fff;text-shadow:0 3px 12px rgba(0,0,0,.75)}
@@ -688,7 +688,7 @@ body{margin:0;background:#000;color:white;font-family:Arial,Helvetica,sans-serif
 .cleanHomeFooter{bottom:4.6%!important}
 
 
-/* v3.8.14 approved logo background home layout */
+/* v3.8.1554 approved logo background home layout */
 #home .bg{object-fit:cover}
 #home::before{
   content:"";
@@ -782,6 +782,47 @@ body{margin:0;background:#000;color:white;font-family:Arial,Helvetica,sans-serif
   pointer-events:auto!important;
 }
 
+
+/* v3.8.15 final home alignment polish */
+.homeOverlayText{
+  top:27.2%!important;
+}
+.overlayBtn{
+  display:grid!important;
+  grid-template-columns:58px 1fr 46px!important;
+  align-items:center!important;
+  justify-items:center!important;
+  column-gap:10px!important;
+}
+.overlayBtn b{
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  height:100%!important;
+  line-height:1!important;
+  text-align:center!important;
+}
+.overlayIcon{
+  width:58px!important;
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  height:100%!important;
+  line-height:1!important;
+}
+.overlayArrow{
+  width:46px!important;
+  height:100%!important;
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  line-height:1!important;
+  transform:translateY(-1px);
+}
+.homeOverlayFooter{
+  bottom:4.2%!important;
+}
+
 </style>
 </head>
 <body>
@@ -797,7 +838,7 @@ body{margin:0;background:#000;color:white;font-family:Arial,Helvetica,sans-serif
 
 <div class='homeOverlayText'>
   <div class='homeSubtitle'>Professional LTE &amp; 5G<br>Installation Assistant</div>
-  <div id='homeVersionLine' class='homeVersion'>Version 3.8.14 Beta</div>
+  <div id='homeVersionLine' class='homeVersion'>Version 3.8.154 Beta</div>
 </div>
 
 <div class='homeOverlayButtons'>
@@ -1046,7 +1087,7 @@ body{margin:0;background:#000;color:white;font-family:Arial,Helvetica,sans-serif
   </div>
   <div class='fullCard' style='text-align:center'>
     <div style='font-size:54px'>📶</div>
-    <h2>Signal Scout v3.8.1444</h2>
+    <h2>Signal Scout v3.8.1555</h2>
     <div class='muted'>Built for professional LTE and 5G installers.</div>
     <div class='smallStatGrid'>
       <div class='smallStat'><b>LTE</b><span>Signal</span></div>
@@ -1069,7 +1110,7 @@ body{margin:0;background:#000;color:white;font-family:Arial,Helvetica,sans-serif
   <div class='menuItem' onclick='openRouter()'>⚙ Router Manager</div>
   <div class='menuItem' onclick='show("settings")'>🔧 Settings</div>
   <div class='menuItem' onclick='show("about")'>ℹ About</div>
-  <div class='menuFoot'>Router: <span id='routerState'>Not connected</span><br>Signal Scout v3.8.1444<br>🇬🇧 Pro Locks UK</div>
+  <div class='menuFoot'>Router: <span id='routerState'>Not connected</span><br>Signal Scout v3.8.1555<br>🇬🇧 Pro Locks UK</div>
 </div>
 
 <div id='router' class='router'>
@@ -1094,7 +1135,7 @@ body{margin:0;background:#000;color:white;font-family:Arial,Helvetica,sans-serif
 
 function updateHomeVersionLine(){
   try{
-    var v = SignalScout.getAppVersion ? SignalScout.getAppVersion() : '3.8.143210';
+    var v = SignalScout.getAppVersion ? SignalScout.getAppVersion() : '3.8.1543210';
     var el = document.getElementById('homeVersionLine');
     if(el) el.innerText = 'Version ' + v + ' Beta';
   }catch(e){}
