@@ -70,7 +70,7 @@ public class MainActivity extends Activity {
             try {
                 return getPackageManager().getPackageInfo(getPackageName(), 0).versionName;
             } catch(Exception e) {
-                return "3.8.4";
+                return "3.8.5";
             }
         }
 
@@ -183,7 +183,7 @@ public class MainActivity extends Activity {
     void detectAndLogin() {
         new Thread(() -> {
             js("clearLog(); setStatus('Detecting router...');");
-            log("Signal Scout Router Engine v3.8.4");
+            log("Signal Scout Router Engine v3.8.5");
             String manual = routerBase;
             ArrayList<String> bases = new ArrayList<>();
             if (manual != null && manual.length() > 0 && !manual.equalsIgnoreCase("AUTO")) bases.add(manual);
@@ -538,8 +538,10 @@ body{margin:0;background:#000;color:white;font-family:Arial,Helvetica,sans-serif
 <img class='bg' src='home_bg.png'>
 <button id='beginBtn' class='homeBtn' onclick='show("dashboard")'>Begin Survey</button>
 <button id='setupBtn' class='homeBtn' onclick='openRouter()'>First Time Setup</button>
-<div id='homeDynamicFooter' style="position:absolute;left:0;right:0;bottom:54px;text-align:center;color:rgba(220,230,235,.86);font-size:14px;z-index:5">Signal Scout v3.8.4</div>
-<div style="position:absolute;left:0;right:0;bottom:28px;text-align:center;color:rgba(220,230,235,.45);font-size:14px;z-index:5">🇬🇧 Pro Locks UK</div>
+
+<div id='homeVersionLine' style="position:absolute;left:0;right:0;top:28.8%;text-align:center;color:rgba(225,235,240,.78);font-size:15px;font-weight:700;letter-spacing:.2px;z-index:6">Version 3.8.5 Beta</div>
+<div id='homeProLocksFooter' style="position:absolute;left:0;right:0;bottom:26px;text-align:center;color:rgba(225,235,240,.55);font-size:14px;font-weight:700;z-index:6">🇬🇧 Pro Locks UK</div>
+
 </section>
 
 <section id='dashboard' class='screen'>
@@ -779,7 +781,7 @@ body{margin:0;background:#000;color:white;font-family:Arial,Helvetica,sans-serif
   </div>
   <div class='fullCard' style='text-align:center'>
     <div style='font-size:54px'>📶</div>
-    <h2>Signal Scout v3.8.4</h2>
+    <h2>Signal Scout v3.8.5</h2>
     <div class='muted'>Built for professional LTE and 5G installers.</div>
     <div class='smallStatGrid'>
       <div class='smallStat'><b>LTE</b><span>Signal</span></div>
@@ -802,7 +804,7 @@ body{margin:0;background:#000;color:white;font-family:Arial,Helvetica,sans-serif
   <div class='menuItem' onclick='openRouter()'>⚙ Router Manager</div>
   <div class='menuItem' onclick='show("settings")'>🔧 Settings</div>
   <div class='menuItem' onclick='show("about")'>ℹ About</div>
-  <div class='menuFoot'>Router: <span id='routerState'>Not connected</span><br>Signal Scout v3.8.4<br>🇬🇧 Pro Locks UK</div>
+  <div class='menuFoot'>Router: <span id='routerState'>Not connected</span><br>Signal Scout v3.8.5<br>🇬🇧 Pro Locks UK</div>
 </div>
 
 <div id='router' class='router'>
@@ -824,6 +826,15 @@ body{margin:0;background:#000;color:white;font-family:Arial,Helvetica,sans-serif
 
 </div>
 <script>
+
+function updateHomeVersionLine(){
+  try{
+    var v = SignalScout.getAppVersion ? SignalScout.getAppVersion() : '3.8.5';
+    var el = document.getElementById('homeVersionLine');
+    if(el) el.innerText = 'Version ' + v + ' Beta';
+  }catch(e){}
+}
+
 
 function updateHomeFooterVersion(){
   try{
@@ -1024,6 +1035,8 @@ function sinrWord(v){v=parseFloat(v);if(isNaN(v))return'Waiting';if(v>=20)return
 function rsrpWord(v){v=parseFloat(v);if(isNaN(v))return'Waiting';if(v>=-85)return'Excellent';if(v>=-95)return'Good';if(v>=-105)return'Fair';return'Poor'}
 function rsrqWord(v){v=parseFloat(v);if(isNaN(v))return'Waiting';if(v>=-10)return'Excellent';if(v>=-13)return'Good';if(v>=-15)return'Fair';return'Poor'}
 function bandFreq(b){if(!b||b==='--')return'--';if(b.includes('20'))return'1800 + 800 MHz';if(b.includes('3'))return'1800 MHz';if(b.includes('7'))return'2600 MHz';if(b.includes('1'))return'2100 MHz';return'LTE band'}
+setTimeout(updateHomeVersionLine,500);
+setTimeout(updateHomeVersionLine,1500);
 </script>
 </body>
 </html>
