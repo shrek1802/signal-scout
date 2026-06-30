@@ -70,7 +70,7 @@ public class MainActivity extends Activity {
             try {
                 return getPackageManager().getPackageInfo(getPackageName(), 0).versionName;
             } catch(Exception e) {
-                return "3.8.10";
+                return "3.8.110";
             }
         }
 
@@ -183,7 +183,7 @@ public class MainActivity extends Activity {
     void detectAndLogin() {
         new Thread(() -> {
             js("clearLog(); setStatus('Detecting router...');");
-            log("Signal Scout Router Engine v3.8.1000");
+            log("Signal Scout Router Engine v3.8.1111");
             String manual = routerBase;
             ArrayList<String> bases = new ArrayList<>();
             if (manual != null && manual.length() > 0 && !manual.equalsIgnoreCase("AUTO")) bases.add(manual);
@@ -528,21 +528,150 @@ body{margin:0;background:#000;color:white;font-family:Arial,Helvetica,sans-serif
 .scrim{position:absolute;inset:0;background:rgba(0,0,0,.55);z-index:9;display:none}.scrim.open{display:block}
 .router{position:absolute;left:0;right:0;bottom:-100%;background:#071d28;border-radius:24px 24px 0 0;border:1px solid rgba(101,255,73,.28);padding:18px;z-index:20;transition:.25s;max-height:92vh;overflow:auto}.router.open{bottom:0}.router h2{text-align:center;margin:0 0 12px}.router input{width:100%;background:#06131d;border:1px solid rgba(101,255,73,.24);border-radius:12px;padding:13px;color:white;margin:6px 0;font-size:16px}.btn{width:100%;height:46px;border:none;border-radius:12px;background:linear-gradient(135deg,#0a84ff,#00b8ff);color:white;font-weight:800;font-size:15px;margin-top:8px}.btn.dark{background:#1c3440}.row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}.raw{font-family:monospace;color:#a7b9bf;font-size:10px;white-space:pre-wrap;max-height:180px;overflow:auto;margin-top:8px}.log{font-family:monospace;color:#d7f4df;font-size:11px;white-space:pre-wrap;max-height:145px;overflow:auto;background:#03111a;border-radius:10px;padding:8px;margin-top:8px}
 .placeholder{padding:30px;background:#020b13;height:100%;color:white}.placeholder h1{margin-top:70px}
+
+/* v3.8.11 clean background + real home UI */
+#home .bg{
+  object-fit:cover;
+}
+#home::before{
+  content:"";
+  position:absolute;
+  inset:0;
+  z-index:2;
+  pointer-events:none;
+  background:
+    linear-gradient(to bottom, rgba(0,4,12,.62) 0%, rgba(0,4,12,.28) 23%, rgba(0,4,12,0) 48%),
+    linear-gradient(to bottom, rgba(0,0,0,0) 67%, rgba(0,4,12,.30) 78%, rgba(0,4,12,.82) 100%);
+}
+.cleanHomeHeader{
+  position:absolute;
+  left:0;
+  right:0;
+  top:7.2%;
+  z-index:7;
+  text-align:center;
+  pointer-events:none;
+  text-shadow:0 4px 16px rgba(0,0,0,.82);
+}
+.cleanHomeTitleWhite{
+  font-size:54px;
+  line-height:.92;
+  font-weight:950;
+  color:#fff;
+  letter-spacing:-1.2px;
+}
+.cleanHomeTitleGreen{
+  font-size:60px;
+  line-height:.92;
+  font-weight:950;
+  color:#63f14c;
+  letter-spacing:-1.2px;
+}
+.cleanHomeSub{
+  margin-top:16px;
+  font-size:18px;
+  line-height:1.28;
+  font-weight:700;
+  color:rgba(245,250,255,.92);
+}
+.cleanHomeVersion{
+  margin-top:9px;
+  font-size:14px;
+  line-height:1.2;
+  font-weight:750;
+  color:rgba(225,235,240,.76);
+}
+.cleanHomeButtons{
+  position:absolute;
+  left:6.5%;
+  right:6.5%;
+  bottom:10.7%;
+  z-index:8;
+  display:flex;
+  flex-direction:column;
+  gap:18px;
+  pointer-events:none;
+}
+.cleanHomeBtn{
+  height:74px;
+  border-radius:18px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:0 30px;
+  box-sizing:border-box;
+  color:#fff;
+  font-size:22px;
+  font-weight:900;
+  letter-spacing:.4px;
+  text-transform:uppercase;
+  text-shadow:0 2px 10px rgba(0,0,0,.62);
+}
+.cleanHomeBtnIcon{
+  width:54px;
+  text-align:center;
+  font-size:31px;
+}
+.cleanHomeBtnArrow{
+  font-size:35px;
+  opacity:.95;
+}
+.cleanHomeBegin{
+  background:linear-gradient(135deg,#1095ff,#0032bd);
+  border:2px solid rgba(93,205,255,.95);
+  box-shadow:0 0 24px rgba(0,128,255,.48), inset 0 1px 0 rgba(255,255,255,.22);
+}
+.cleanHomeSetup{
+  background:rgba(0,9,18,.78);
+  border:2px solid rgba(105,255,75,.95);
+  box-shadow:0 0 18px rgba(105,255,75,.20), inset 0 1px 0 rgba(255,255,255,.08);
+}
+.cleanHomeFooter{
+  position:absolute;
+  left:0;
+  right:0;
+  bottom:4.1%;
+  z-index:8;
+  text-align:center;
+  color:rgba(245,250,255,.80);
+  font-size:16px;
+  font-weight:850;
+  pointer-events:none;
+  text-shadow:0 4px 12px rgba(0,0,0,.82);
+}
+#home #beginBtn,#home #setupBtn{
+  opacity:0!important;
+  z-index:20!important;
+  pointer-events:auto!important;
+}
+
 </style>
 </head>
 <body>
 <div id='app'>
 <div id='scrim' class='scrim' onclick='closeAll()'></div>
 
+
 <section id='home' class='screen active'>
 <img class='bg' src='home_bg.png'>
 <button id='beginBtn' class='homeBtn' onclick='show("dashboard")'>Begin Survey</button>
 <button id='setupBtn' class='homeBtn' onclick='openRouter()'>First Time Setup</button>
 
-<div id='homeFooterMask' style="position:absolute;left:0;right:0;bottom:0;height:7.2%;background:linear-gradient(to bottom,rgba(0,7,14,.78),rgba(0,7,14,.96));z-index:4;pointer-events:none"></div>
-<div id='homeProLocksFooter' style="position:absolute;left:0;right:0;bottom:42px;text-align:center;color:rgba(225,235,240,.68);font-size:14px;font-weight:700;z-index:6;pointer-events:none">🇬🇧 Pro Locks UK</div>
+<div class='cleanHomeHeader'>
+  <div class='cleanHomeTitleWhite'>Signal</div>
+  <div class='cleanHomeTitleGreen'>Scout</div>
+  <div class='cleanHomeSub'>Professional LTE &amp; 5G<br>Installation Assistant</div>
+  <div id='homeVersionLine' class='cleanHomeVersion'>Version 3.8.11 Beta</div>
+</div>
 
+<div class='cleanHomeButtons'>
+  <div class='cleanHomeBtn cleanHomeBegin'><span class='cleanHomeBtnIcon'>◎</span><b>Begin Survey</b><span class='cleanHomeBtnArrow'>›</span></div>
+  <div class='cleanHomeBtn cleanHomeSetup'><span class='cleanHomeBtnIcon'>⚙</span><b>First Time Setup</b><span class='cleanHomeBtnArrow'>›</span></div>
+</div>
+
+<div class='cleanHomeFooter'>🇬🇧 Pro Locks UK</div>
 </section>
+
 
 <section id='dashboard' class='screen'>
 <img class='bg' src='dashboard_bg.png'>
@@ -781,7 +910,7 @@ body{margin:0;background:#000;color:white;font-family:Arial,Helvetica,sans-serif
   </div>
   <div class='fullCard' style='text-align:center'>
     <div style='font-size:54px'>📶</div>
-    <h2>Signal Scout v3.8.1000</h2>
+    <h2>Signal Scout v3.8.1111</h2>
     <div class='muted'>Built for professional LTE and 5G installers.</div>
     <div class='smallStatGrid'>
       <div class='smallStat'><b>LTE</b><span>Signal</span></div>
@@ -804,7 +933,7 @@ body{margin:0;background:#000;color:white;font-family:Arial,Helvetica,sans-serif
   <div class='menuItem' onclick='openRouter()'>⚙ Router Manager</div>
   <div class='menuItem' onclick='show("settings")'>🔧 Settings</div>
   <div class='menuItem' onclick='show("about")'>ℹ About</div>
-  <div class='menuFoot'>Router: <span id='routerState'>Not connected</span><br>Signal Scout v3.8.1000<br>🇬🇧 Pro Locks UK</div>
+  <div class='menuFoot'>Router: <span id='routerState'>Not connected</span><br>Signal Scout v3.8.1111<br>🇬🇧 Pro Locks UK</div>
 </div>
 
 <div id='router' class='router'>
@@ -829,7 +958,7 @@ body{margin:0;background:#000;color:white;font-family:Arial,Helvetica,sans-serif
 
 function updateHomeVersionLine(){
   try{
-    var v = SignalScout.getAppVersion ? SignalScout.getAppVersion() : '3.8.10';
+    var v = SignalScout.getAppVersion ? SignalScout.getAppVersion() : '3.8.110';
     var el = document.getElementById('homeVersionLine');
     if(el) el.innerText = 'Version ' + v + ' Beta';
   }catch(e){}
