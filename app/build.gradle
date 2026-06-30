@@ -8,8 +8,8 @@ android {
         applicationId "uk.prolocks.signalscout"
         minSdk 23
         targetSdk 35
-        versionCode 1782800239
-        versionName "3.8.5"
+        versionCode 3860
+        versionName "3.8.6"
     }
 
     compileOptions {

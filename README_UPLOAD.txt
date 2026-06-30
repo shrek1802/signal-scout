@@ -1,17 +1,17 @@
-Signal Scout v3.8.5 Home Screen Polish
+Signal Scout v3.8.6 Home Layout Fix
 
 Use:
 1. Rename this ZIP to upload.zip
 2. Upload to repo root
 3. Run Apply upload.zip Update
 4. Run Release Manager
-5. Version: 3.8.5
+5. Version: 3.8.6
 6. Channel: beta
 
 Changes:
-- Based on working v3.8.x base
-- Moves Version text under the Installation Assistant area
-- Moves Pro Locks UK to bottom footer
-- Cleans old baked footer from home background
-- Keeps Huawei/router/band logic unchanged
-- No new features added
+- Layout-only fix from v3.8.5
+- Moves Version text slightly up
+- Moves Pro Locks UK footer safely above the Android navigation area
+- Adds safe spacing for the FIRST TIME SETUP green border
+- No image edits
+- No router/login/band logic changes
