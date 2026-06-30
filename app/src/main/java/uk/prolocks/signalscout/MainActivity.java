@@ -70,7 +70,7 @@ public class MainActivity extends Activity {
             try {
                 return getPackageManager().getPackageInfo(getPackageName(), 0).versionName;
             } catch(Exception e) {
-                return "3.8.110";
+                return "3.8.1210";
             }
         }
 
@@ -183,7 +183,7 @@ public class MainActivity extends Activity {
     void detectAndLogin() {
         new Thread(() -> {
             js("clearLog(); setStatus('Detecting router...');");
-            log("Signal Scout Router Engine v3.8.1111");
+            log("Signal Scout Router Engine v3.8.1222");
             String manual = routerBase;
             ArrayList<String> bases = new ArrayList<>();
             if (manual != null && manual.length() > 0 && !manual.equalsIgnoreCase("AUTO")) bases.add(manual);
@@ -529,7 +529,7 @@ body{margin:0;background:#000;color:white;font-family:Arial,Helvetica,sans-serif
 .router{position:absolute;left:0;right:0;bottom:-100%;background:#071d28;border-radius:24px 24px 0 0;border:1px solid rgba(101,255,73,.28);padding:18px;z-index:20;transition:.25s;max-height:92vh;overflow:auto}.router.open{bottom:0}.router h2{text-align:center;margin:0 0 12px}.router input{width:100%;background:#06131d;border:1px solid rgba(101,255,73,.24);border-radius:12px;padding:13px;color:white;margin:6px 0;font-size:16px}.btn{width:100%;height:46px;border:none;border-radius:12px;background:linear-gradient(135deg,#0a84ff,#00b8ff);color:white;font-weight:800;font-size:15px;margin-top:8px}.btn.dark{background:#1c3440}.row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}.raw{font-family:monospace;color:#a7b9bf;font-size:10px;white-space:pre-wrap;max-height:180px;overflow:auto;margin-top:8px}.log{font-family:monospace;color:#d7f4df;font-size:11px;white-space:pre-wrap;max-height:145px;overflow:auto;background:#03111a;border-radius:10px;padding:8px;margin-top:8px}
 .placeholder{padding:30px;background:#020b13;height:100%;color:white}.placeholder h1{margin-top:70px}
 
-/* v3.8.11 clean background + real home UI */
+/* v3.8.1221 clean background + real home UI */
 #home .bg{
   object-fit:cover;
 }
@@ -645,6 +645,27 @@ body{margin:0;background:#000;color:white;font-family:Arial,Helvetica,sans-serif
   pointer-events:auto!important;
 }
 
+
+/* v3.8.12 logo branding */
+.cleanHomeLogo{
+  width:72%;
+  max-width:360px;
+  height:auto;
+  display:block;
+  margin:0 auto;
+  filter:drop-shadow(0 5px 18px rgba(0,0,0,.85));
+}
+.cleanHomeHeader{
+  top:6.4%!important;
+}
+.cleanHomeSub{
+  margin-top:13px!important;
+}
+.cleanHomeVersion{
+  margin-top:8px!important;
+  font-size:13px!important;
+}
+
 </style>
 </head>
 <body>
@@ -658,10 +679,9 @@ body{margin:0;background:#000;color:white;font-family:Arial,Helvetica,sans-serif
 <button id='setupBtn' class='homeBtn' onclick='openRouter()'>First Time Setup</button>
 
 <div class='cleanHomeHeader'>
-  <div class='cleanHomeTitleWhite'>Signal</div>
-  <div class='cleanHomeTitleGreen'>Scout</div>
+  <img class='cleanHomeLogo' src='signal_scout_logo.png'>
   <div class='cleanHomeSub'>Professional LTE &amp; 5G<br>Installation Assistant</div>
-  <div id='homeVersionLine' class='cleanHomeVersion'>Version 3.8.11 Beta</div>
+  <div id='homeVersionLine' class='cleanHomeVersion'>Version 3.8.121 Beta</div>
 </div>
 
 <div class='cleanHomeButtons'>
@@ -910,7 +930,7 @@ body{margin:0;background:#000;color:white;font-family:Arial,Helvetica,sans-serif
   </div>
   <div class='fullCard' style='text-align:center'>
     <div style='font-size:54px'>📶</div>
-    <h2>Signal Scout v3.8.1111</h2>
+    <h2>Signal Scout v3.8.1222</h2>
     <div class='muted'>Built for professional LTE and 5G installers.</div>
     <div class='smallStatGrid'>
       <div class='smallStat'><b>LTE</b><span>Signal</span></div>
@@ -933,7 +953,7 @@ body{margin:0;background:#000;color:white;font-family:Arial,Helvetica,sans-serif
   <div class='menuItem' onclick='openRouter()'>⚙ Router Manager</div>
   <div class='menuItem' onclick='show("settings")'>🔧 Settings</div>
   <div class='menuItem' onclick='show("about")'>ℹ About</div>
-  <div class='menuFoot'>Router: <span id='routerState'>Not connected</span><br>Signal Scout v3.8.1111<br>🇬🇧 Pro Locks UK</div>
+  <div class='menuFoot'>Router: <span id='routerState'>Not connected</span><br>Signal Scout v3.8.1222<br>🇬🇧 Pro Locks UK</div>
 </div>
 
 <div id='router' class='router'>
@@ -958,7 +978,7 @@ body{margin:0;background:#000;color:white;font-family:Arial,Helvetica,sans-serif
 
 function updateHomeVersionLine(){
   try{
-    var v = SignalScout.getAppVersion ? SignalScout.getAppVersion() : '3.8.110';
+    var v = SignalScout.getAppVersion ? SignalScout.getAppVersion() : '3.8.1210';
     var el = document.getElementById('homeVersionLine');
     if(el) el.innerText = 'Version ' + v + ' Beta';
   }catch(e){}
